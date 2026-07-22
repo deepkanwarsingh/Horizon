@@ -66,21 +66,62 @@ const Analytics = () => {
     );
   }, [form, errors]);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    const key = name as keyof typeof form;
+const handleInputChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+) => {
+  const { name } = e.target;
+  let { value } = e.target;
+  const key = name as keyof typeof form;
 
-    if (key === "reportType" && value && !REPORT_TYPES.includes(value)) return;
-    if (key === "timePeriod" && value && !TIME_PERIODS.includes(value)) return;
+  // Remove all spaces from email
+  if (key === "email") {
+    value = value.replace(/\s/g, "");
+  }
 
-    setForm((prev) => ({ ...prev, [key]: value }));
+  // Collapse multiple spaces in Report Name
+  if (key === "reportName") {
+    value = value.replace(/\s{2,}/g, " ");
+  }
+
+  // Block HTML tags, <script> tags, and javascript: URLs
+  const hasUnsafeContent =
+    /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(value) ||
+    /<[^>]+>/g.test(value) ||
+    /javascript\s*:/i.test(value);
+
+  if (hasUnsafeContent) {
     setErrors((prev) => ({
       ...prev,
-      [key]: validateField(key, value),
+      [key]:
+        "HTML tags, script tags, or javascript: URLs are not allowed.",
     }));
-  };
+    return;
+  }
+
+  if (
+    key === "reportType" &&
+    value &&
+    !REPORT_TYPES.includes(value)
+  )
+    return;
+
+  if (
+    key === "timePeriod" &&
+    value &&
+    !TIME_PERIODS.includes(value)
+  )
+    return;
+
+  setForm((prev) => ({
+    ...prev,
+    [key]: value,
+  }));
+
+  setErrors((prev) => ({
+    ...prev,
+    [key]: validateField(key, value),
+  }));
+};
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
