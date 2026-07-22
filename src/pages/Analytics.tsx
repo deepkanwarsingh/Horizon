@@ -1,21 +1,22 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  INITIAL_FORM,
+  INITIAL_ERRORS,
+  REPORT_TYPES,
+  TIME_PERIODS,
+  EMAIL_REGEX,
+  LETTERS_ONLY_REGEX,
+  VALIDATION_MESSAGES,
+  UI_TEXT,
+} from "../constant/analytics";
 
 const Analytics = () => {
-  const [form, setForm] = useState({
-    reportName: "",
-    email: "",
-    department: "",
-    reportType: "",
-    timePeriod: "",
-  });
+  const [form, setForm] = useState(INITIAL_FORM);
+  const [errors, setErrors] = useState(INITIAL_ERRORS);
+  const [isFormValid, setIsFormValid] = useState(false);
 
-  const [errors, setErrors] = useState({
-    reportName: "",
-    email: "",
-    department: "",
-    reportType: "",
-    timePeriod: "",
-  });
+  const inputStyle =
+    "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition-all duration-300 ease-in-out focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
   const validateField = (
     name: keyof typeof form,
@@ -23,277 +24,214 @@ const Analytics = () => {
   ): string => {
     switch (name) {
       case "reportName":
-        if (value.trim() === "") return "Report name is required.";
-        if (value.length < 3) return "Minimum 3 characters.";
-        return "";
+        return !value.trim()
+          ? VALIDATION_MESSAGES.reportNameRequired
+          : value.length < 3
+          ? VALIDATION_MESSAGES.reportNameMin
+          : "";
 
       case "email":
-        if (value.trim() === "") return "Email is required.";
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          return "Enter a valid email address.";
-        return "";
+        return !value.trim()
+          ? VALIDATION_MESSAGES.emailRequired
+          : !EMAIL_REGEX.test(value)
+          ? VALIDATION_MESSAGES.emailInvalid
+          : "";
 
       case "department":
-        if (value.trim() === "") return "Department is required.";
-        if (!/^[A-Za-z ]+$/.test(value))
-          return "Only letters are allowed.";
-        return "";
+        return !value.trim()
+          ? VALIDATION_MESSAGES.departmentRequired
+          : !LETTERS_ONLY_REGEX.test(value)
+          ? VALIDATION_MESSAGES.departmentInvalid
+          : "";
 
       case "reportType":
-        if (value === "") return "Please select a report type.";
-        return "";
+        return !value
+          ? VALIDATION_MESSAGES.reportTypeRequired
+          : "";
 
       case "timePeriod":
-        if (value === "") return "Please select a time period.";
-        return "";
+        return !value
+          ? VALIDATION_MESSAGES.timePeriodRequired
+          : "";
 
       default:
         return "";
     }
   };
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
+  useEffect(() => {
+    setIsFormValid(
+      Object.values(errors).every((e) => !e) &&
+        Object.values(form).every((v) => v.trim() !== "")
+    );
+  }, [form, errors]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const name = e.target.name as keyof typeof form;
-    const value = e.target.value;
+    const { name, value } = e.target;
+    const key = name as keyof typeof form;
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (key === "reportType" && value && !REPORT_TYPES.includes(value)) return;
+    if (key === "timePeriod" && value && !TIME_PERIODS.includes(value)) return;
 
+    setForm((prev) => ({ ...prev, [key]: value }));
     setErrors((prev) => ({
       ...prev,
-      [name]: validateField(name, value),
+      [key]: validateField(key, value),
     }));
   };
 
-  const handleReportTypeChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const value = e.target.value;
-
-    const allowedTypes = [
-      "Sales",
-      "Marketing",
-      "Finance",
-      "Operations",
-    ];
-
-    if (!allowedTypes.includes(value)) return;
-
-    setForm((prev) => ({
-      ...prev,
-      reportType: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      reportType: "",
-    }));
-  };
-
-  const handleTimePeriodChange = (
-    e: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const value = e.target.value;
-
-    const allowedPeriods = [
-      "Daily",
-      "Weekly",
-      "Monthly",
-      "Yearly",
-    ];
-
-    if (!allowedPeriods.includes(value)) return;
-
-    setForm((prev) => ({
-      ...prev,
-      timePeriod: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      timePeriod: "",
-    }));
-  };
-
-  const isFormValid =
-    Object.values(errors).every((error) => error === "") &&
-    Object.values(form).every((value) => value.trim() !== "");
-
-  const handleSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!isFormValid) return;
+    const newErrors = Object.keys(form).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: validateField(
+          key as keyof typeof form,
+          form[key as keyof typeof form]
+        ),
+      }),
+      {} as typeof INITIAL_ERRORS
+    );
+
+    setErrors(newErrors);
+
+    if (Object.values(newErrors).some(Boolean)) return;
 
     alert("Analytics form submitted successfully!");
   };
 
-  const inputStyle =
-    "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition duration-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
+  const renderInput = (
+    name: keyof typeof form,
+    label: string,
+    placeholder: string,
+    type = "text"
+  ) => (
+    <div>
+      <label className="mb-2 block font-medium text-gray-700">
+        {label}
+      </label>
+      <input
+        type={type}
+        name={name}
+        value={form[name]}
+        onChange={handleInputChange}
+        placeholder={placeholder}
+        className={inputStyle}
+      />
+      {errors[name] && (
+        <p className="mt-2 text-sm text-red-500">
+          {errors[name]}
+        </p>
+      )}
+    </div>
+  );
+
+  const renderSelect = (
+    name: "reportType" | "timePeriod",
+    label: string,
+    placeholder: string,
+    options: string[]
+  ) => (
+    <div>
+      <label className="mb-2 block font-medium text-gray-700">
+        {label}
+      </label>
+      <select
+        name={name}
+        value={form[name]}
+        onChange={handleInputChange}
+        className={inputStyle}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option} value={option}>
+            {option}
+          </option>
+        ))}
+      </select>
+      {errors[name] && (
+        <p className="mt-2 text-sm text-red-500">
+          {errors[name]}
+        </p>
+      )}
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-gray-100 px-6 py-12">
       <div className="mx-auto max-w-2xl rounded-2xl bg-white p-8 shadow-lg">
-
-        <h1 className="text-3xl font-bold text-gray-900">
-          Analytics Form
-        </h1>
-
-        <p className="mt-2 text-gray-500">
-          Fill out the form below to generate an analytics report.
-        </p>
+        <h1 className="text-3xl font-bold">{UI_TEXT.title}</h1>
+        <p className="mt-2 text-gray-500">{UI_TEXT.description}</p>
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+          {renderInput(
+            "reportName",
+            UI_TEXT.reportNameLabel,
+            UI_TEXT.reportNamePlaceholder
+          )}
 
-          {/* Report Name */}
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Report Name
-            </label>
+          {renderInput(
+            "email",
+            UI_TEXT.emailLabel,
+            UI_TEXT.emailPlaceholder,
+            "email"
+          )}
 
-            <input
-              type="text"
-              name="reportName"
-              value={form.reportName}
-              onChange={handleChange}
-              className={inputStyle}
-              placeholder="Monthly Sales Report"
-            />
+          {renderInput(
+            "department",
+            UI_TEXT.departmentLabel,
+            UI_TEXT.departmentPlaceholder
+          )}
 
-            {errors.reportName && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.reportName}
-              </p>
-            )}
-          </div>
+          {renderSelect(
+            "reportType",
+            UI_TEXT.reportTypeLabel,
+            UI_TEXT.reportTypePlaceholder,
+            REPORT_TYPES
+          )}
 
-          {/* Email */}
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Email
-            </label>
-
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className={inputStyle}
-              placeholder="example@email.com"
-            />
-
-            {errors.email && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.email}
-              </p>
-            )}
-          </div>
-
-          {/* Department */}
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Department
-            </label>
-
-            <input
-              type="text"
-              name="department"
-              value={form.department}
-              onChange={handleChange}
-              className={inputStyle}
-              placeholder="Marketing"
-            />
-
-            {errors.department && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.department}
-              </p>
-            )}
-          </div>
-
-          {/* Report Type */}
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Report Type
-            </label>
-
-            <select
-              value={form.reportType}
-              onChange={handleReportTypeChange}
-              className={inputStyle}
-            >
-              <option value="">Select Report Type</option>
-              <option value="Sales">Sales</option>
-              <option value="Marketing">Marketing</option>
-              <option value="Finance">Finance</option>
-              <option value="Operations">Operations</option>
-            </select>
-
-            {errors.reportType && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.reportType}
-              </p>
-            )}
-          </div>
-
-          {/* Time Period */}
-          <div>
-            <label className="mb-2 block font-medium text-gray-700">
-              Time Period
-            </label>
-
-            <select
-              value={form.timePeriod}
-              onChange={handleTimePeriodChange}
-              className={inputStyle}
-            >
-              <option value="">Select Time Period</option>
-              <option value="Daily">Daily</option>
-              <option value="Weekly">Weekly</option>
-              <option value="Monthly">Monthly</option>
-              <option value="Yearly">Yearly</option>
-            </select>
-
-            {errors.timePeriod && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.timePeriod}
-              </p>
-            )}
-          </div>
+          {renderSelect(
+            "timePeriod",
+            UI_TEXT.timePeriodLabel,
+            UI_TEXT.timePeriodPlaceholder,
+            TIME_PERIODS
+          )}
 
           <button
             type="submit"
             disabled={!isFormValid}
-            className={`w-full rounded-xl py-3 font-semibold transition ${
+            className={`w-full rounded-xl py-3 font-semibold transition-all duration-300 ease-in-out ${
               isFormValid
-                ? "bg-blue-600 text-white hover:bg-blue-700"
+                ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.02]"
                 : "cursor-not-allowed bg-gray-300 text-gray-500"
             }`}
           >
-            Generate Report
+            {UI_TEXT.submitButton}
           </button>
-
         </form>
 
         <div className="mt-8 rounded-xl bg-gray-50 p-5">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
-            Live Preview
+          <h2 className="mb-4 text-lg font-semibold">
+            {UI_TEXT.previewTitle}
           </h2>
 
-          <div className="space-y-2 text-sm text-gray-700">
-            <p><strong>Report:</strong> {form.reportName}</p>
-            <p><strong>Email:</strong> {form.email}</p>
-            <p><strong>Department:</strong> {form.department}</p>
-            <p><strong>Report Type:</strong> {form.reportType}</p>
-            <p><strong>Time Period:</strong> {form.timePeriod}</p>
+          <div className="space-y-2 text-sm">
+            {[
+              [UI_TEXT.reportNameLabel, form.reportName],
+              [UI_TEXT.emailLabel, form.email],
+              [UI_TEXT.departmentLabel, form.department],
+              [UI_TEXT.reportTypeLabel, form.reportType],
+              [UI_TEXT.timePeriodLabel, form.timePeriod],
+            ].map(([label, value]) => (
+              <p key={String(label)}>
+                <strong>{label}:</strong> {value}
+              </p>
+            ))}
           </div>
         </div>
-
       </div>
     </div>
   );
