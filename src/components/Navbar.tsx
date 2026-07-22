@@ -4,7 +4,7 @@ import { Bell, Search } from "lucide-react";
 const Navbar = () => {
   const [theme, setTheme] = useState("light");
 
-  const handleThemeChange = (e) => {
+  const handleThemeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedTheme = e.target.value;
 
     if (!["light", "dark", "system"].includes(selectedTheme)) {
