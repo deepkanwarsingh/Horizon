@@ -9,6 +9,9 @@ import {
   VALIDATION_MESSAGES,
   UI_TEXT,
 } from "../constant/analytics";
+import Form from "../components/Form";
+import Select from "../components/subComponents/Select";
+import Input from "../components/subComponents/Input";
 
 const Analytics = () => {
   const [form, setForm] = useState(INITIAL_FORM);
@@ -207,52 +210,59 @@ const handleInputChange = (
         <h1 className="text-3xl font-bold">{UI_TEXT.title}</h1>
         <p className="mt-2 text-gray-500">{UI_TEXT.description}</p>
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-          {renderInput(
-            "reportName",
-            UI_TEXT.reportNameLabel,
-            UI_TEXT.reportNamePlaceholder
-          )}
+<Form
+  onSubmit={handleSubmit}
+  buttonText={UI_TEXT.submitButton}
+  isButtonDisabled={!isFormValid}
+>
+  <Input
+    label={UI_TEXT.reportNameLabel}
+    name="reportName"
+    value={form.reportName}
+    placeholder={UI_TEXT.reportNamePlaceholder}
+    onChange={handleInputChange}
+    error={errors.reportName}
+  />
 
-          {renderInput(
-            "email",
-            UI_TEXT.emailLabel,
-            UI_TEXT.emailPlaceholder,
-            "email"
-          )}
+  <Input
+    type="email"
+    label={UI_TEXT.emailLabel}
+    name="email"
+    value={form.email}
+    placeholder={UI_TEXT.emailPlaceholder}
+    onChange={handleInputChange}
+    error={errors.email}
+  />
 
-          {renderInput(
-            "department",
-            UI_TEXT.departmentLabel,
-            UI_TEXT.departmentPlaceholder
-          )}
+  <Input
+    label={UI_TEXT.departmentLabel}
+    name="department"
+    value={form.department}
+    placeholder={UI_TEXT.departmentPlaceholder}
+    onChange={handleInputChange}
+    error={errors.department}
+  />
 
-          {renderSelect(
-            "reportType",
-            UI_TEXT.reportTypeLabel,
-            UI_TEXT.reportTypePlaceholder,
-            REPORT_TYPES
-          )}
+  <Select
+    label={UI_TEXT.reportTypeLabel}
+    name="reportType"
+    value={form.reportType}
+    placeholder={UI_TEXT.reportTypePlaceholder}
+    options={REPORT_TYPES}
+    onChange={handleInputChange}
+    error={errors.reportType}
+  />
 
-          {renderSelect(
-            "timePeriod",
-            UI_TEXT.timePeriodLabel,
-            UI_TEXT.timePeriodPlaceholder,
-            TIME_PERIODS
-          )}
-
-          <button
-            type="submit"
-            disabled={!isFormValid}
-            className={`w-full rounded-xl py-3 font-semibold transition-all duration-300 ease-in-out ${
-              isFormValid
-                ? "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.02]"
-                : "cursor-not-allowed bg-gray-300 text-gray-500"
-            }`}
-          >
-            {UI_TEXT.submitButton}
-          </button>
-        </form>
+  <Select
+    label={UI_TEXT.timePeriodLabel}
+    name="timePeriod"
+    value={form.timePeriod}
+    placeholder={UI_TEXT.timePeriodPlaceholder}
+    options={TIME_PERIODS}
+    onChange={handleInputChange}
+    error={errors.timePeriod}
+  />
+</Form>
 
         <div className="mt-8 rounded-xl bg-gray-50 p-5">
           <h2 className="mb-4 text-lg font-semibold">
