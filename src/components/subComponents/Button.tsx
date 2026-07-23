@@ -15,19 +15,47 @@ const Button = ({
   className = "",
   onClick,
 }: ButtonProps) => {
-  const defaultClasses =
-    "w-full rounded-xl py-3 font-semibold transition-all duration-300 ease-in-out";
-
-  const stateClasses = disabled
-    ? "cursor-not-allowed bg-gray-300 text-gray-500"
-    : "bg-blue-600 text-white hover:bg-blue-700 hover:scale-[1.02]";
-
   return (
     <button
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={`${defaultClasses} ${stateClasses} ${className}`}
+      className={`
+        inline-flex
+        items-center
+        justify-center
+        gap-2
+        rounded-xl
+        px-5
+        py-3
+        text-sm
+        font-medium
+        transition-all
+        duration-200
+        ease-in-out
+        focus:outline-none
+        focus:ring-2
+        focus:ring-gray-300
+        active:scale-[0.98]
+
+        ${
+          disabled
+            ? `
+              cursor-not-allowed
+              bg-gray-100
+              text-gray-400
+            `
+            : `
+              bg-gray-900
+              text-white
+              shadow-sm
+              hover:bg-black
+              hover:shadow-md
+            `
+        }
+
+        ${className}
+      `}
     >
       {children}
     </button>
