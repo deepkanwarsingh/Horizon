@@ -1,162 +1,33 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
-  INITIAL_FORM,
-  INITIAL_ERRORS,
   REPORT_TYPES,
   TIME_PERIODS,
-  EMAIL_REGEX,
-  LETTERS_ONLY_REGEX,
-  VALIDATION_MESSAGES,
   UI_TEXT,
-  INPUT_STYLE,
   PREVIEW_FIELDS,
 } from "../constant/analytics";
+import Workspace from "../components/WorkSpace";
+import Card from "../components/subComponents/Card";
 import Form from "../components/Form";
 import Select from "../components/subComponents/Select";
 import Input from "../components/subComponents/Input";
+import useAnalyticsForm from "../hooks/useAnalyticsForm";
 
 const Analytics = () => {
-  const [form, setForm] = useState(INITIAL_FORM);
-  const [errors, setErrors] = useState(INITIAL_ERRORS);
-  const [isFormValid, setIsFormValid] = useState(false);
-
-  const validateField = (
-    name: keyof typeof form,
-    value: string
-  ): string => {
-    switch (name) {
-      case "reportName":
-        return !value.trim()
-          ? VALIDATION_MESSAGES.reportNameRequired
-          : value.length < 3
-          ? VALIDATION_MESSAGES.reportNameMin
-          : "";
-
-      case "email":
-        return !value.trim()
-          ? VALIDATION_MESSAGES.emailRequired
-          : !EMAIL_REGEX.test(value)
-          ? VALIDATION_MESSAGES.emailInvalid
-          : "";
-
-      case "department":
-        return !value.trim()
-          ? VALIDATION_MESSAGES.departmentRequired
-          : !LETTERS_ONLY_REGEX.test(value)
-          ? VALIDATION_MESSAGES.departmentInvalid
-          : "";
-
-      case "reportType":
-        return !value
-          ? VALIDATION_MESSAGES.reportTypeRequired
-          : "";
-
-      case "timePeriod":
-        return !value
-          ? VALIDATION_MESSAGES.timePeriodRequired
-          : "";
-
-      default:
-        return "";
-    }
-  };
-
-  useEffect(() => {
-    setIsFormValid(
-      Object.values(errors).every((e) => !e) &&
-        Object.values(form).every((v) => v.trim() !== "")
-    );
-  }, [form, errors]);
-
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name } = e.target;
-    let { value } = e.target;
-    const key = name as keyof typeof form;
-
-    // Remove all spaces from email
-    if (key === "email") {
-      value = value.replace(/\s/g, "");
-    }
-
-    // Collapse multiple spaces in Report Name
-    if (key === "reportName") {
-      value = value.replace(/\s{2,}/g, " ");
-    }
-
-    // Block HTML tags, <script> tags, and javascript: URLs
-    const hasUnsafeContent =
-      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi.test(value) ||
-      /<[^>]+>/g.test(value) ||
-      /javascript\s*:/i.test(value);
-
-    if (hasUnsafeContent) {
-      setErrors((prev) => ({
-        ...prev,
-        [key]: VALIDATION_MESSAGES.unsafeContent,
-      }));
-      return;
-    }
-
-    if (
-      key === "reportType" &&
-      value &&
-      !REPORT_TYPES.includes(value)
-    ) {
-      return;
-    }
-
-    if (
-      key === "timePeriod" &&
-      value &&
-      !TIME_PERIODS.includes(value)
-    ) {
-      return;
-    }
-
-    setForm((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [key]: validateField(key, value),
-    }));
-  };
-
-  const handleSubmit = (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
-    e.preventDefault();
-
-    const newErrors = Object.keys(form).reduce(
-      (acc, key) => ({
-        ...acc,
-        [key]: validateField(
-          key as keyof typeof form,
-          form[key as keyof typeof form]
-        ),
-      }),
-      {} as typeof INITIAL_ERRORS
-    );
-
-    setErrors(newErrors);
-
-    if (Object.values(newErrors).some(Boolean)) return;
-
-    alert(UI_TEXT.submitSuccess);
-  };
+  const {
+    form,
+    errors,
+    isFormValid,
+    handleInputChange,
+    handleSubmit,
+  } = useAnalyticsForm();
 
   return (
-    <div className="min-h-screen bg-gray-100 px-6 py-12">
-      <div className="mx-auto max-w-2xl rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-3xl font-bold">{UI_TEXT.title}</h1>
-        <p className="mt-2 text-gray-500">
-          {UI_TEXT.description}
-        </p>
-
+    <Workspace
+      subtitle="Workspace"
+      title={UI_TEXT.title}
+      description={UI_TEXT.description}
+    >
+      <Card className="mx-auto max-w-2xl">
         <Form
           onSubmit={handleSubmit}
           buttonText={UI_TEXT.submitButton}
@@ -224,8 +95,8 @@ const Analytics = () => {
             ))}
           </div>
         </div>
-      </div>
-    </div>
+      </Card>
+    </Workspace>
   );
 };
 

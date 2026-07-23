@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Workspace from "../components/WorkSpace";
 
 import ProjectsCard from "../components/workspace/ProjectCard";
@@ -6,24 +7,27 @@ import RevenueCard from "../components/workspace/RevenueCard";
 import VisitorsCard from "../components/workspace/VistorsCard";
 
 const Dashboard = () => {
-  const cards = [
-    {
-      id: "projects",
-      content: <ProjectsCard />,
-    },
-    {
-      id: "tasks",
-      content: <TasksCard />,
-    },
-    {
-      id: "revenue",
-      content: <RevenueCard />,
-    },
-    {
-      id: "visitors",
-      content: <VisitorsCard />,
-    },
-  ];
+  const cards = useMemo(
+    () => [
+      {
+        id: "projects",
+        content: <ProjectsCard />,
+      },
+      {
+        id: "tasks",
+        content: <TasksCard />,
+      },
+      {
+        id: "revenue",
+        content: <RevenueCard />,
+      },
+      {
+        id: "visitors",
+        content: <VisitorsCard />,
+      },
+    ],
+    []
+  );
 
   return (
     <Workspace
