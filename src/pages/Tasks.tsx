@@ -118,7 +118,9 @@ const inputClass =
       params.set(key, value);
     }
 
-    setSearchParams(params);
+    setSearchParams(params, {
+  replace: true,
+});
   };
 
   return (
