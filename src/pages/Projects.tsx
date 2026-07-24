@@ -1,3 +1,4 @@
+import Workspace from "../components/WorkSpace";
 import Card from "../components/subComponents/Card";
 
 const projectList = [
@@ -29,17 +30,11 @@ const projectList = [
 
 const Projects = () => {
   return (
-    <section className="mx-auto w-full max-w-[1440px]">
-      <header className="mb-8">
-        <h1 className="text-4xl font-semibold text-gray-900">
-          Projects
-        </h1>
-
-        <p className="mt-2 text-gray-600">
-          Manage and monitor all your active projects.
-        </p>
-      </header>
-
+    <Workspace
+      subtitle="Workspace"
+      title="Projects"
+      description="Manage and monitor all your active projects."
+    >
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {projectList.map((project) => (
           <Card key={project.id}>
@@ -65,7 +60,7 @@ const Projects = () => {
           </Card>
         ))}
       </div>
-    </section>
+    </Workspace>
   );
 };
 

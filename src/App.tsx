@@ -5,14 +5,7 @@ import AppRoutes from "./routes/AppRoutes";
 function App() {
   return (
     <div
-      className="
-        h-screen
-        w-full
-        bg-gray-100
-        grid
-        grid-cols-1
-        md:grid-cols-[260px_1fr]
-        overflow-hidden
+      className=" h-screen w-full bg-gray-100 grid grid-cols-1 md:grid-cols-[260px_1fr] overflow-hidden
       "
     >
       <Drawer />
