@@ -1,6 +1,6 @@
 import { memo, useCallback } from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, ChartColumn, Settings } from "lucide-react";
+import { LayoutDashboard, FolderKanban, ChartColumn, Settings,ListTodo } from "lucide-react";
 import { useLayout } from "../context/LayoutContext";
 
 function Sidebar() {
@@ -21,6 +21,11 @@ function Sidebar() {
       name: "Analytics",
       path: "/analytics",
       icon: ChartColumn,
+    },
+        {
+      name: "Tasks",
+      path: "/tasks",
+      icon: ListTodo,
     },
     {
       name: "Settings",

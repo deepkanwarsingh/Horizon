@@ -4,6 +4,7 @@ import Dashboard from "../pages/Dashboard";
 import Projects from "../pages/Projects";
 import Analytics from "../pages/Analytics";
 import Settings from "../pages/Settings";
+import Tasks from "../pages/Tasks";
 
 export default function AppRoutes() {
   return (
@@ -11,6 +12,8 @@ export default function AppRoutes() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/projects" element={<Projects />} />
       <Route path="/analytics" element={<Analytics />} />
+            <Route path="/tasks" element={<Tasks />} />
+
       <Route path="/settings" element={<Settings />} />
     </Routes>
   );

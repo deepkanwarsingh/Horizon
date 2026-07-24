@@ -61,7 +61,7 @@ const Dashboard = () => {
   }, [searchParams, activeTab, setActiveTab, setSearchParams]);
 
   const activeCard =
-    tabs.find((tab) => tab.id === activeTab) || tabs[0];
+    tabs.find((tab) => tab.id === activeTab) ?? tabs[0]!;
 
   const handleTabChange = (tabId: string) => {
     if (tabId === activeTab) return;
