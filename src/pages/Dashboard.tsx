@@ -114,7 +114,7 @@ const Dashboard = () => {
 </div>
 
       {/* History Debug Panel */}
-      <div className="mb-6 rounded-lg border bg-gray-50 p-4">
+      <div className="mb-6 rounded-lg bg-gray-50 p-4">
         <h3 className="mb-2 font-semibold text-gray-800">
           Navigation History
         </h3>

@@ -45,25 +45,25 @@ const ProjectsCard = () => {
 
       {/* Statistics */}
       <div className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-xl border bg-white p-6">
+        <div className="rounded-xl  bg-white p-6">
           <p className="text-sm text-gray-500">Completed</p>
           <h3 className="mt-2 text-3xl font-bold text-green-600">18</h3>
         </div>
 
-        <div className="rounded-xl border bg-white p-6">
+        <div className="rounded-xl  bg-white p-6">
           <p className="text-sm text-gray-500">In Progress</p>
           <h3 className="mt-2 text-3xl font-bold text-blue-600">6</h3>
         </div>
 
-        <div className="rounded-xl border bg-white p-6">
+        <div className="rounded-xl  bg-white p-6">
           <p className="text-sm text-gray-500">Team Members</p>
           <h3 className="mt-2 text-3xl font-bold text-purple-600">42</h3>
         </div>
       </div>
 
       {/* Project List */}
-      <div className="rounded-xl border bg-white">
-        <div className="border-b px-6 py-4">
+      <div className="rounded-xl  bg-white">
+        <div className=" px-6 py-4">
           <h3 className="text-lg font-semibold">Recent Projects</h3>
         </div>
 
