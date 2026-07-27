@@ -10,10 +10,8 @@ interface SelectProps {
     e: React.ChangeEvent<HTMLSelectElement>
   ) => void;
   error?: string;
+  isDarkMode?: boolean;
 }
-
-const inputStyle =
-  "w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none transition-all duration-300 ease-in-out focus:border-blue-500 focus:ring-2 focus:ring-blue-100";
 
 const Select = ({
   label,
@@ -23,10 +21,17 @@ const Select = ({
   options,
   onChange,
   error,
+  isDarkMode = false,
 }: SelectProps) => {
   return (
     <div>
-      <label className="mb-2 block font-medium text-gray-700">
+      <label
+        className={`mb-2 block font-medium ${
+          isDarkMode
+            ? "text-gray-200"
+            : "text-gray-700"
+        }`}
+      >
         {label}
       </label>
 
@@ -34,12 +39,47 @@ const Select = ({
         name={name}
         value={value}
         onChange={onChange}
-        className={inputStyle}
+        className={`
+          w-full
+          rounded-xl
+          border
+          px-4
+          py-3
+          outline-none
+          transition-all
+          duration-300
+          ease-in-out
+          focus:border-blue-500
+          focus:ring-2
+          focus:ring-blue-100
+          ${
+            isDarkMode
+              ? "border-gray-600 bg-gray-800 text-white"
+              : "border-gray-300 bg-white text-gray-900"
+          }
+        `}
       >
-        <option value="">{placeholder}</option>
+        <option
+          value=""
+          className={
+            isDarkMode
+              ? "bg-gray-800 text-gray-400"
+              : ""
+          }
+        >
+          {placeholder}
+        </option>
 
         {options.map((option) => (
-          <option key={option} value={option}>
+          <option
+            key={option}
+            value={option}
+            className={
+              isDarkMode
+                ? "bg-gray-800 text-white"
+                : ""
+            }
+          >
             {option}
           </option>
         ))}

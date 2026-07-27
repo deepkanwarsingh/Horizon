@@ -1,8 +1,11 @@
+import React from "react";
 import {
   User,
   Flag,
   CircleDot,
 } from "lucide-react";
+
+import { useAppSelector } from "../../hooks/reduxHooks";
 
 export type Task = {
   id: number;
@@ -42,7 +45,15 @@ const Badge = ({
   </span>
 );
 
-export default function TaskGrid({ tasks }: Props) {
+export default function TaskGrid({
+  tasks,
+}: Props) {
+  const { theme } = useAppSelector(
+    (state) => state.settings
+  );
+
+  const isDarkMode = theme === "dark";
+
   return (
     <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
       {tasks.map((task, index) => {
@@ -52,26 +63,54 @@ export default function TaskGrid({ tasks }: Props) {
         return (
           <div
             key={task.id}
-            className="
-              group rounded-2xl bg-white p-6
-              shadow-sm transition-all duration-300
-              hover:-translate-y-1 hover:border-blue-300 hover:shadow-xl
-            "
+            className={`
+              group
+              rounded-2xl
+              p-6
+              shadow-sm
+              transition-all
+              duration-300
+              hover:-translate-y-1
+              hover:shadow-xl
+              ${
+                isDarkMode
+                  ? "border border-gray-700 bg-gray-800 hover:border-blue-500"
+                  : "bg-white hover:border-blue-300"
+              }
+            `}
           >
             {/* Header */}
             <div className="mb-5 flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-bold text-gray-800 transition group-hover:text-blue-600">
+                <h3
+                  className={`text-lg font-bold transition ${
+                    isDarkMode
+                      ? "text-white group-hover:text-blue-400"
+                      : "text-gray-800 group-hover:text-blue-600"
+                  }`}
+                >
                   {task.title}
                 </h3>
 
-                <div className="mt-2 flex items-center gap-2 text-sm text-gray-500">
+                <div
+                  className={`mt-2 flex items-center gap-2 text-sm ${
+                    isDarkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
+                  }`}
+                >
                   <User size={15} />
                   {task.assignee}
                 </div>
               </div>
 
-              <Badge className="bg-gray-100 text-gray-700">
+              <Badge
+                className={
+                  isDarkMode
+                    ? "bg-gray-700 text-gray-200"
+                    : "bg-gray-100 text-gray-700"
+                }
+              >
                 #{task.id}
               </Badge>
             </div>
@@ -79,7 +118,13 @@ export default function TaskGrid({ tasks }: Props) {
             {/* Details */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div
+                  className={`flex items-center gap-2 text-sm ${
+                    isDarkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
+                  }`}
+                >
                   <Flag size={15} />
                   Priority
                 </div>
@@ -96,7 +141,13 @@ export default function TaskGrid({ tasks }: Props) {
               </div>
 
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div
+                  className={`flex items-center gap-2 text-sm ${
+                    isDarkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
+                  }`}
+                >
                   <CircleDot size={15} />
                   Status
                 </div>
@@ -114,12 +165,30 @@ export default function TaskGrid({ tasks }: Props) {
             </div>
 
             {/* Footer */}
-            <div className="mt-6 rounded-xl bg-gray-50 p-4">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <div
+              className={`mt-6 rounded-xl p-4 ${
+                isDarkMode
+                  ? "bg-gray-900"
+                  : "bg-gray-50"
+              }`}
+            >
+              <p
+                className={`mb-2 text-xs font-semibold uppercase tracking-wide ${
+                  isDarkMode
+                    ? "text-gray-400"
+                    : "text-gray-500"
+                }`}
+              >
                 Panel Position
               </p>
 
-              <div className="flex justify-between text-sm text-gray-600">
+              <div
+                className={`flex justify-between text-sm ${
+                  isDarkMode
+                    ? "text-gray-300"
+                    : "text-gray-600"
+                }`}
+              >
                 <span>
                   <strong>Row:</strong> {row}
                 </span>

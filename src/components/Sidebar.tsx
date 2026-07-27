@@ -1,10 +1,24 @@
 import { memo, useCallback } from "react";
 import { NavLink } from "react-router-dom";
-import { LayoutDashboard, FolderKanban, ChartColumn, Settings,ListTodo } from "lucide-react";
+import {
+  LayoutDashboard,
+  FolderKanban,
+  ChartColumn,
+  Settings,
+  ListTodo,
+} from "lucide-react";
+
 import { useLayout } from "../context/LayoutContext";
+import { useAppSelector } from "../hooks/reduxHooks";
 
 function Sidebar() {
   const { isSidebarOpen, setIsSidebarOpen } = useLayout();
+
+  const theme = useAppSelector(
+    (state) => state.settings.theme
+  );
+
+  const isDarkMode = theme === "dark";
 
   const navigation = [
     {
@@ -22,7 +36,7 @@ function Sidebar() {
       path: "/analytics",
       icon: ChartColumn,
     },
-        {
+    {
       name: "Tasks",
       path: "/tasks",
       icon: ListTodo,
@@ -62,10 +76,14 @@ function Sidebar() {
           h-screen
           w-[260px]
           border-r
-          border-gray-200/80
-          bg-white
           transition-transform
           duration-300
+
+          ${
+            isDarkMode
+              ? "border-gray-700 bg-gray-900"
+              : "border-gray-200/80 bg-white"
+          }
 
           ${
             isSidebarOpen
@@ -80,18 +98,42 @@ function Sidebar() {
         <div className="flex h-full flex-col">
           {/* Logo */}
 
-          <div className="border-b border-gray-100 px-6 py-6">
+          <div
+            className={`border-b px-6 py-6 ${
+              isDarkMode
+                ? "border-gray-700"
+                : "border-gray-100"
+            }`}
+          >
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-black text-sm font-semibold text-white">
+              <div
+                className={`flex h-10 w-10 items-center justify-center rounded-xl text-sm font-semibold ${
+                  isDarkMode
+                    ? "bg-white text-black"
+                    : "bg-black text-white"
+                }`}
+              >
                 DS
               </div>
 
               <div>
-                <h2 className="text-sm font-semibold text-gray-900">
+                <h2
+                  className={`text-sm font-semibold ${
+                    isDarkMode
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
                   Devspace
                 </h2>
 
-                <p className="text-xs text-gray-500">
+                <p
+                  className={`text-xs ${
+                    isDarkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
+                  }`}
+                >
                   Personal Workspace
                 </p>
               </div>
@@ -112,24 +154,28 @@ function Sidebar() {
                   onClick={handleNavigationClick}
                   className={({ isActive }) =>
                     `
-                    group
-                    flex
-                    items-center
-                    gap-3
-                    rounded-xl
-                    px-4
-                    py-3
-                    text-sm
-                    font-medium
-                    transition-all
-                    duration-200
+                      group
+                      flex
+                      items-center
+                      gap-3
+                      rounded-xl
+                      px-4
+                      py-3
+                      text-sm
+                      font-medium
+                      transition-all
+                      duration-200
 
-                    ${
-                      isActive
-                        ? "bg-gray-900 text-white shadow-sm"
-                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                    }
-                  `
+                      ${
+                        isActive
+                          ? isDarkMode
+                            ? "bg-blue-600 text-white shadow-sm"
+                            : "bg-gray-900 text-white shadow-sm"
+                          : isDarkMode
+                          ? "text-gray-300 hover:bg-gray-800 hover:text-white"
+                          : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                      }
+                    `
                   }
                 >
                   <Icon
@@ -145,20 +191,44 @@ function Sidebar() {
 
           {/* User */}
 
-          <div className="border-t border-gray-100 p-4">
-            <div className="flex items-center gap-3 rounded-xl p-2 hover:bg-gray-100 transition-colors cursor-pointer">
+          <div
+            className={`border-t p-4 ${
+              isDarkMode
+                ? "border-gray-700"
+                : "border-gray-100"
+            }`}
+          >
+            <div
+              className={`flex cursor-pointer items-center gap-3 rounded-xl p-2 transition-colors ${
+                isDarkMode
+                  ? "hover:bg-gray-800"
+                  : "hover:bg-gray-100"
+              }`}
+            >
               <img
                 src="https://i.pravatar.cc/100"
-                alt=""
+                alt="User"
                 className="h-10 w-10 rounded-full"
               />
 
               <div>
-                {/* <p className="text-sm font-medium text-gray-900">
+                {/* <p
+                  className={`text-sm font-medium ${
+                    isDarkMode
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
                   Deepkanwar
                 </p> */}
 
-                <p className="text-xs text-gray-500">
+                <p
+                  className={`text-xs ${
+                    isDarkMode
+                      ? "text-gray-400"
+                      : "text-gray-500"
+                  }`}
+                >
                   Software Engineer
                 </p>
               </div>

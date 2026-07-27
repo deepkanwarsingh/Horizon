@@ -1,5 +1,6 @@
 import Workspace from "../components/WorkSpace";
 import Card from "../components/subComponents/Card";
+import { useAppSelector } from "../hooks/reduxHooks";
 
 const projectList = [
   {
@@ -29,6 +30,12 @@ const projectList = [
 ];
 
 const Projects = () => {
+  const { theme } = useAppSelector(
+    (state) => state.settings
+  );
+
+  const isDarkMode = theme === "dark";
+
   return (
     <Workspace
       subtitle="Workspace"
@@ -38,11 +45,23 @@ const Projects = () => {
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
         {projectList.map((project) => (
           <Card key={project.id}>
-            <h2 className="text-xl font-semibold text-gray-900">
+            <h2
+              className={`text-xl font-semibold ${
+                isDarkMode
+                  ? "text-white"
+                  : "text-gray-900"
+              }`}
+            >
               {project.name}
             </h2>
 
-            <p className="mt-4 text-sm text-gray-500">
+            <p
+              className={`mt-4 text-sm ${
+                isDarkMode
+                  ? "text-gray-400"
+                  : "text-gray-500"
+              }`}
+            >
               Status
             </p>
 
@@ -50,11 +69,23 @@ const Projects = () => {
               {project.status}
             </p>
 
-            <p className="mt-4 text-sm text-gray-500">
+            <p
+              className={`mt-4 text-sm ${
+                isDarkMode
+                  ? "text-gray-400"
+                  : "text-gray-500"
+              }`}
+            >
               Team Members
             </p>
 
-            <p className="font-medium text-gray-900">
+            <p
+              className={`font-medium ${
+                isDarkMode
+                  ? "text-white"
+                  : "text-gray-900"
+              }`}
+            >
               {project.members}
             </p>
           </Card>
