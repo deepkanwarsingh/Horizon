@@ -6,19 +6,22 @@ import ProjectsCard from "../components/workspace/ProjectCard";
 import TasksCard from "../components/workspace/TaskCard";
 import RevenueCard from "../components/workspace/RevenueCard";
 import VisitorsCard from "../components/workspace/VistorsCard";
-import { useData } from "../context/DataContext";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+
+import {
+  setActiveTab,
+  addNavigationHistory,
+} from "../features/dashboard/dashboardSlice";
 
 const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+const dispatch = useAppDispatch();
 
-  const {
-    activeTab,
-    setActiveTab,
-    navigationHistory,
-    setNavigationHistory,
-    historyIndex,
-    setHistoryIndex,
-  } = useData();
+const {
+  activeTab,
+  navigationHistory,
+  historyIndex,
+} = useAppSelector((state: any) => state.dashboard);
 
   const tabs = useMemo(
     () => [
@@ -55,25 +58,28 @@ const Dashboard = () => {
       return;
     }
 
-    if (tab !== activeTab) {
-      setActiveTab(tab);
-    }
-  }, [searchParams, activeTab, setActiveTab, setSearchParams]);
+if (tab !== activeTab) {
+  dispatch(setActiveTab(tab));
+}
+  }, [
+  searchParams,
+  activeTab,
+  setSearchParams,
+  dispatch,
+]);
 
   const activeCard =
     tabs.find((tab) => tab.id === activeTab) ?? tabs[0]!;
 
-  const handleTabChange = (tabId: string) => {
-    if (tabId === activeTab) return;
+const handleTabChange = (tabId: string) => {
+  if (tabId === activeTab) return;
 
-    setActiveTab(tabId);
+  dispatch(setActiveTab(tabId));
 
-    setNavigationHistory((prev) => [...prev, tabId]);
+  dispatch(addNavigationHistory(tabId));
 
-    setHistoryIndex((prev) => prev + 1);
-
-    setSearchParams({ tab: tabId });
-  };
+  setSearchParams({ tab: tabId });
+};
 
   return (
     <Workspace
@@ -124,7 +130,7 @@ const Dashboard = () => {
         </p>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {navigationHistory.map((item, index) => (
+          {navigationHistory.map((item: string, index: number) => (
             <span
               key={`${item}-${index}`}
               className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700"

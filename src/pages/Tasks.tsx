@@ -1,9 +1,17 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Search, Filter, X } from "lucide-react";
 
 import Workspace from "../components/WorkSpace";
-import useValidatedRoute from "../hooks/useValidateRoute";
 import TaskGrid, { type Task } from "../components/tasks/TaskGrid";
+
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import {
+  setSearch,
+  setPriority,
+  setStatus,
+  resetFilters,
+} from "../features/filter/filterSlice";
 
 const TASKS: Task[] = [
   {
@@ -50,6 +58,11 @@ const TASKS: Task[] = [
   },
 ];
 
+const allowedValues = {
+  priority: ["all", "high", "medium", "low"],
+  status: ["all", "in-progress", "pending", "completed"],
+};
+
 const inputClass =
   "w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-blue-500 focus:bg-white";
 
@@ -71,13 +84,70 @@ const Badge = ({
 );
 
 const Tasks = () => {
-  const { search, priority, status, updateQuery } =
-    useValidatedRoute();
+  const dispatch = useAppDispatch();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const { search, priority, status } = useAppSelector(
+    (state) => state.filter
+  );
+
+  // Read URL and initialize Redux
+  useEffect(() => {
+    const search = searchParams.get("q") || "";
+
+    const priority = searchParams.get("priority") || "all";
+
+    const status = searchParams.get("status") || "all";
+
+    dispatch(setSearch(search));
+
+    dispatch(
+      setPriority(
+        allowedValues.priority.includes(priority)
+          ? priority
+          : "all"
+      )
+    );
+
+    dispatch(
+      setStatus(
+        allowedValues.status.includes(status)
+          ? status
+          : "all"
+      )
+    );
+  }, [dispatch, searchParams]);
+
+  // Keep URL synchronized with Redux
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (search) {
+      params.set("q", search);
+    }
+
+    if (priority !== "all") {
+      params.set("priority", priority);
+    }
+
+    if (status !== "all") {
+      params.set("status", status);
+    }
+
+    setSearchParams(params, {
+      replace: true,
+    });
+  }, [
+    search,
+    priority,
+    status,
+    setSearchParams,
+  ]);
 
   const clearQuery = () => {
-    updateQuery("q", "");
-    updateQuery("priority", "all");
-    updateQuery("status", "all");
+    dispatch(resetFilters());
+
+    setSearchParams({}, { replace: true });
   };
 
   const filterFields = [
@@ -87,12 +157,16 @@ const Tasks = () => {
       value: search,
       type: "search",
       placeholder: "Search tasks...",
+      onChange: (value: string) =>
+        dispatch(setSearch(value)),
     },
     {
       key: "priority",
       label: "Priority",
       value: priority,
       options: ["all", "high", "medium", "low"],
+      onChange: (value: string) =>
+        dispatch(setPriority(value)),
     },
     {
       key: "status",
@@ -104,6 +178,8 @@ const Tasks = () => {
         "pending",
         "completed",
       ],
+      onChange: (value: string) =>
+        dispatch(setStatus(value)),
     },
   ];
 
@@ -144,7 +220,7 @@ const Tasks = () => {
       title="Task Manager"
       description="Manage, search and filter workspace tasks."
     >
-      <div className="mb-8 rounded-2xl  bg-white p-6 shadow-sm">
+      <div className="mb-8 rounded-2xl bg-white p-6 shadow-sm">
         <div className="mb-5 flex items-center">
           <div className="rounded-xl bg-blue-100 p-2 text-blue-600">
             <Filter size={18} />
@@ -183,10 +259,7 @@ const Tasks = () => {
                     value={field.value}
                     placeholder={field.placeholder}
                     onChange={(e) =>
-                      updateQuery(
-                        field.key,
-                        e.target.value
-                      )
+                      field.onChange(e.target.value)
                     }
                     className={`${inputClass} pl-10`}
                   />
@@ -195,10 +268,7 @@ const Tasks = () => {
                 <select
                   value={field.value}
                   onChange={(e) =>
-                    updateQuery(
-                      field.key,
-                      e.target.value
-                    )
+                    field.onChange(e.target.value)
                   }
                   className={inputClass}
                 >
@@ -224,7 +294,7 @@ const Tasks = () => {
           Clear Filters
         </button>
       </div>
-            {/* Task Grid */}
+
       <TaskGrid tasks={filteredTasks} />
 
       {filteredTasks.length === 0 && (

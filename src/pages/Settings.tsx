@@ -1,25 +1,25 @@
-import React, { useState } from "react";
+import React from "react";
+import { useAppDispatch, useAppSelector } from "../hooks/reduxHooks";
+import {
+  setTheme,
+  setLanguage,
+  setFontSize,
+} from "../features/settings/settingsSlice";
 
-const LANGUAGES = ["English", "Spanish", "French"];
-const FONT_SIZES = ["Small", "Medium", "Large"];
+const LANGUAGES = ["English", "Spanish", "French"] as const;
+const FONT_SIZES = ["Small", "Medium", "Large"] as const;
 
 const Settings = () => {
-  const [isDarkMode, setIsDarkMode] = useState(false);
-  const [language, setLanguage] = useState("English");
-  const [fontSize, setFontSize] = useState("Medium");
+  const dispatch = useAppDispatch();
+
+  const { theme, language, fontSize } = useAppSelector(
+    (state: any) => state.settings
+  );
+
+  const isDarkMode = theme === "dark";
 
   const dropdownStyle =
     "w-full cursor-pointer appearance-none rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium text-gray-800 shadow-sm outline-none transition-all duration-300 ease-in-out hover:bg-white focus:border-gray-400 focus:bg-white focus:ring-2 focus:ring-gray-200";
-
-  const handleChange = (
-    e: React.ChangeEvent<HTMLSelectElement>,
-    options: string[],
-    setter: React.Dispatch<React.SetStateAction<string>>,
-    defaultValue: string
-  ) => {
-    const { value } = e.target;
-    setter(options.includes(value) ? value : defaultValue);
-  };
 
   const isSettingsValid =
     LANGUAGES.includes(language) &&
@@ -41,33 +41,44 @@ const Settings = () => {
 
         {/* Settings Grid */}
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {/* Theme Toggle */}
-<SettingItem
-  title="Theme"
-  description="Switch between Light and Dark mode."
->
-  <div className="flex items-center justify-between">
-    <span className="text-sm font-medium text-gray-700">
-      {isDarkMode ? "Dark" : "Light"}
-    </span>
+          {/* Theme */}
+          <SettingItem
+            title="Theme"
+            description="Switch between Light and Dark mode."
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">
+                {isDarkMode ? "Dark" : "Light"}
+              </span>
 
-    <button
-      type="button"
-      role="switch"
-      aria-checked={isDarkMode}
-      onClick={() => setIsDarkMode((prev) => !prev)}
-      className={`relative h-7 w-14 rounded-full transition-colors duration-500 ease-in-out ${
-        isDarkMode ? "bg-blue-600" : "bg-gray-300"
-      }`}
-    >
-      <span
-        className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-500 ease-in-out ${
-          isDarkMode ? "translate-x-7" : "translate-x-0"
-        }`}
-      />
-    </button>
-  </div>
-</SettingItem>
+              <button
+                type="button"
+                role="switch"
+                aria-checked={isDarkMode}
+                onClick={() =>
+                  dispatch(
+                    setTheme(
+                      isDarkMode ? "light" : "dark"
+                    )
+                  )
+                }
+                className={`relative h-7 w-14 rounded-full transition-colors duration-500 ease-in-out ${
+                  isDarkMode
+                    ? "bg-blue-600"
+                    : "bg-gray-300"
+                }`}
+              >
+                <span
+                  className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-500 ease-in-out ${
+                    isDarkMode
+                      ? "translate-x-7"
+                      : "translate-x-0"
+                  }`}
+                />
+              </button>
+            </div>
+          </SettingItem>
+
           {/* Language */}
           <SettingItem
             title="Language"
@@ -76,11 +87,14 @@ const Settings = () => {
             <select
               value={language}
               onChange={(e) =>
-                handleChange(
-                  e,
-                  LANGUAGES,
-                  setLanguage,
-                  "English"
+                dispatch(
+                  setLanguage(
+                    LANGUAGES.includes(
+                      e.target.value as (typeof LANGUAGES)[number]
+                    )
+                      ? (e.target.value as (typeof LANGUAGES)[number])
+                      : "English"
+                  )
                 )
               }
               className={dropdownStyle}
@@ -101,11 +115,14 @@ const Settings = () => {
             <select
               value={fontSize}
               onChange={(e) =>
-                handleChange(
-                  e,
-                  FONT_SIZES,
-                  setFontSize,
-                  "Medium"
+                dispatch(
+                  setFontSize(
+                    FONT_SIZES.includes(
+                      e.target.value as (typeof FONT_SIZES)[number]
+                    )
+                      ? (e.target.value as (typeof FONT_SIZES)[number])
+                      : "Medium"
+                  )
                 )
               }
               className={dropdownStyle}
@@ -130,17 +147,22 @@ const Settings = () => {
               label="Theme"
               value={isDarkMode ? "Dark" : "Light"}
             />
+
             <PreferenceRow
               label="Language"
               value={language}
             />
+
             <PreferenceRow
               label="Font Size"
               value={fontSize}
             />
+
             <PreferenceRow
               label="Status"
-              value={isSettingsValid ? "Valid" : "Invalid"}
+              value={
+                isSettingsValid ? "Valid" : "Invalid"
+              }
             />
           </div>
         </div>
@@ -184,6 +206,7 @@ const PreferenceRow = ({
 }) => (
   <div className="flex justify-between rounded-lg px-3 py-2 transition-all duration-300 ease-in-out hover:bg-gray-100">
     <span>{label}</span>
+
     <span className="font-medium text-gray-900">
       {value}
     </span>

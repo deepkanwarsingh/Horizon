@@ -19,9 +19,7 @@ const RevenueCard = () => {
           </p>
         </div>
 
-        <div className="rounded-xl bg-blue-50 p-3">
-          <span className="text-2xl">💰</span>
-        </div>
+
       </div>
 
       {/* Stats */}
