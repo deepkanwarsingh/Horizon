@@ -1,0 +1,66 @@
+{
+  "dashboard": {
+    "revenue": {
+      "total": 25000,
+      "growth": 15
+    },
+    "visitors": {
+      "total": 12450,
+      "growth": 8
+    }
+  },
+
+  "projects": [
+    {
+      "id": 1,
+      "name": "AI Resume Analyzer",
+      "status": "In Progress",
+      "members": 5
+    },
+    {
+      "id": 2,
+      "name": "Travel Planner",
+      "status": "Completed",
+      "members": 3
+    },
+    {
+      "id": 3,
+      "name": "Patent Analyzer",
+      "status": "Planning",
+      "members": 4
+    },
+    {
+      "id": 4,
+      "name": "Workspace Dashboard",
+      "status": "Active",
+      "members": 6
+    }
+  ],
+
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Setup Redux Store",
+      "status": "Completed",
+      "priority": "High"
+    },
+    {
+      "id": 2,
+      "title": "Create Axios Client",
+      "status": "In Progress",
+      "priority": "High"
+    },
+    {
+      "id": 3,
+      "title": "Implement MSW",
+      "status": "Pending",
+      "priority": "Medium"
+    },
+    {
+      "id": 4,
+      "title": "Design Dashboard UI",
+      "status": "Completed",
+      "priority": "Low"
+    }
+  ]
+}

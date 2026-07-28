@@ -1,33 +1,15 @@
+import { useEffect, useState } from "react";
 import Workspace from "../components/WorkSpace";
 import Card from "../components/subComponents/Card";
 import { useAppSelector } from "../hooks/reduxHooks";
+import api from "../api/axios";
 
-const projectList = [
-  {
-    id: 1,
-    name: "AI Resume Analyzer",
-    status: "In Progress",
-    members: 5,
-  },
-  {
-    id: 2,
-    name: "Travel Planner",
-    status: "Completed",
-    members: 3,
-  },
-  {
-    id: 3,
-    name: "Patent Analyzer",
-    status: "Planning",
-    members: 4,
-  },
-  {
-    id: 4,
-    name: "Workspace Dashboard",
-    status: "Active",
-    members: 6,
-  },
-];
+interface Project {
+  id: number;
+  name: string;
+  status: string;
+  members: number;
+}
 
 const Projects = () => {
   const { theme } = useAppSelector(
@@ -35,6 +17,65 @@ const Projects = () => {
   );
 
   const isDarkMode = theme === "dark";
+
+  const [projectList, setProjectList] = useState<Project[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        setLoading(true);
+
+        const response = await api.get("/projects");
+
+        setProjectList(response.data);
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load projects.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
+  if (loading) {
+    return (
+      <Workspace
+        subtitle="Workspace"
+        title="Projects"
+        description="Manage and monitor all your active projects."
+      >
+        <div className="flex items-center justify-center py-20">
+          <p
+            className={`text-lg ${
+              isDarkMode
+                ? "text-gray-300"
+                : "text-gray-600"
+            }`}
+          >
+            Loading Projects...
+          </p>
+        </div>
+      </Workspace>
+    );
+  }
+
+  if (error) {
+    return (
+      <Workspace
+        subtitle="Workspace"
+        title="Projects"
+        description="Manage and monitor all your active projects."
+      >
+        <div className="flex items-center justify-center py-20">
+          <p className="text-red-500">{error}</p>
+        </div>
+      </Workspace>
+    );
+  }
 
   return (
     <Workspace
