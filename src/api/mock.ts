@@ -14,6 +14,15 @@ export const handlers = [
   }),
 
   // -----------------------------------------
+  // Dashboard
+  // -----------------------------------------
+  http.get("/api/dashboard", async () => {
+    await delay(1500);
+
+    return HttpResponse.json(workspace.dashboard);
+  }),
+
+  // -----------------------------------------
   // Projects
   // -----------------------------------------
   http.get("/api/projects", async () => {

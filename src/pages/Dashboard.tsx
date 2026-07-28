@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import Workspace from "../components/WorkSpace";
@@ -7,6 +7,8 @@ import ProjectsCard from "../components/workspace/ProjectCard";
 import TasksCard from "../components/workspace/TaskCard";
 import RevenueCard from "../components/workspace/RevenueCard";
 import VisitorsCard from "../components/workspace/VistorsCard";
+
+import api from "../api/axios";
 
 import {
   useAppDispatch,
@@ -17,6 +19,17 @@ import {
   setActiveTab,
   addNavigationHistory,
 } from "../features/dashboard/dashboardSlice";
+
+interface DashboardResponse {
+  revenue: {
+    total: number;
+    growth: number;
+  };
+  visitors: {
+    total: number;
+    growth: number;
+  };
+}
 
 const Dashboard = () => {
   const dispatch = useAppDispatch();
@@ -37,6 +50,71 @@ const Dashboard = () => {
   );
 
   const isDarkMode = theme === "dark";
+
+  const [dashboard, setDashboard] =
+    useState<DashboardResponse | null>(null);
+
+  const [loading, setLoading] =
+    useState(true);
+
+  const [error, setError] =
+    useState("");
+
+  useEffect(() => {
+    const fetchDashboard =
+      async () => {
+        const start =
+          performance.now();
+
+        try {
+          setLoading(true);
+
+          const response =
+            await api.get("/dashboard");
+
+          setDashboard(response.data);
+
+          const end =
+            performance.now();
+
+          console.log(
+            "========= Dashboard API ========="
+          );
+          console.log(
+            "Endpoint:",
+            "/dashboard"
+          );
+          console.log(
+            "Status:",
+            response.status
+          );
+          console.log(
+            "Response Time:",
+            `${(
+              end - start
+            ).toFixed(2)} ms`
+          );
+          console.log(
+            "Payload Size:",
+            `${JSON.stringify(
+              response.data
+            ).length} bytes`
+          );
+          console.log(
+            "================================="
+          );
+        } catch (err) {
+          console.error(err);
+          setError(
+            "Failed to load dashboard."
+          );
+        } finally {
+          setLoading(false);
+        }
+      };
+
+    fetchDashboard();
+  }, []);
 
   const tabs = useMemo(
     () => [
@@ -61,19 +139,25 @@ const Dashboard = () => {
         content: <VisitorsCard />,
       },
     ],
-    []
+    [dashboard]
   );
 
   useEffect(() => {
-    const tab = searchParams.get("tab");
+    const tab =
+      searchParams.get("tab");
 
     if (!tab) {
-      setSearchParams({ tab: activeTab });
+      setSearchParams({
+        tab: activeTab,
+      });
+
       return;
     }
 
     if (tab !== activeTab) {
-      dispatch(setActiveTab(tab));
+      dispatch(
+        setActiveTab(tab)
+      );
     }
   }, [
     searchParams,
@@ -83,18 +167,57 @@ const Dashboard = () => {
   ]);
 
   const activeCard =
-    tabs.find((tab) => tab.id === activeTab) ??
-    tabs[0]!;
+    tabs.find(
+      (tab) =>
+        tab.id === activeTab
+    ) ?? tabs[0];
 
-  const handleTabChange = (tabId: string) => {
-    if (tabId === activeTab) return;
+  const handleTabChange = (
+    tabId: string
+  ) => {
+    if (tabId === activeTab)
+      return;
 
-    dispatch(setActiveTab(tabId));
+    dispatch(
+      setActiveTab(tabId)
+    );
 
-    dispatch(addNavigationHistory(tabId));
+    dispatch(
+      addNavigationHistory(tabId)
+    );
 
-    setSearchParams({ tab: tabId });
+    setSearchParams({
+      tab: tabId,
+    });
   };
+
+  if (loading) {
+    return (
+      <Workspace
+        subtitle="Workspace"
+        title="Dashboard"
+        description="Loading dashboard..."
+      >
+        <div className="flex h-64 items-center justify-center">
+          <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        </div>
+      </Workspace>
+    );
+  }
+
+  if (error) {
+    return (
+      <Workspace
+        subtitle="Workspace"
+        title="Dashboard"
+        description="Dashboard"
+      >
+        <div className="rounded-xl bg-red-100 p-6 text-red-600">
+          {error}
+        </div>
+      </Workspace>
+    );
+  }
 
   return (
     <Workspace
@@ -102,8 +225,6 @@ const Dashboard = () => {
       title="Dashboard"
       description="Welcome back. Here's an overview of your workspace."
     >
-      {/* Tabs */}
-
       <div className="mb-8">
         <div
           className={`no-scrollbar flex gap-3 overflow-x-auto rounded-2xl p-2 ${
@@ -114,35 +235,26 @@ const Dashboard = () => {
         >
           {tabs.map((tab) => {
             const isActive =
-              activeTab === tab.id;
+              activeTab ===
+              tab.id;
 
             return (
               <button
                 key={tab.id}
                 onClick={() =>
-                  handleTabChange(tab.id)
+                  handleTabChange(
+                    tab.id
+                  )
                 }
-                className={`
-                  relative
-                  flex-shrink-0
-                  rounded-xl
-                  px-5
-                  py-3
-                  text-sm
-                  font-semibold
-                  transition-all
-                  duration-300
-
-                  ${
-                    isActive
-                      ? isDarkMode
-                        ? "bg-gray-700 text-blue-400 shadow-md"
-                        : "bg-white text-blue-600 shadow-md shadow-blue-100"
-                      : isDarkMode
-                      ? "text-gray-300 hover:bg-gray-700 hover:text-white"
-                      : "text-gray-600 hover:bg-white hover:text-gray-900"
-                  }
-                `}
+                className={`relative flex-shrink-0 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-300 ${
+                  isActive
+                    ? isDarkMode
+                      ? "bg-gray-700 text-blue-400 shadow-md"
+                      : "bg-white text-blue-600 shadow-md shadow-blue-100"
+                    : isDarkMode
+                    ? "text-gray-300 hover:bg-gray-700 hover:text-white"
+                    : "text-gray-600 hover:bg-white hover:text-gray-900"
+                }`}
               >
                 {tab.label}
 
@@ -154,7 +266,6 @@ const Dashboard = () => {
           })}
         </div>
       </div>
-            {/* Navigation History */}
 
       <div
         className={`mb-6 rounded-lg p-4 ${
@@ -180,15 +291,17 @@ const Dashboard = () => {
               : "text-gray-600"
           }`}
         >
-          <strong>History Index:</strong>{" "}
+          <strong>
+            History Index:
+          </strong>{" "}
           {historyIndex}
         </p>
 
         <div className="mt-3 flex flex-wrap gap-2">
           {navigationHistory.map(
             (
-              item: string,
-              index: number
+              item,
+              index
             ) => (
               <span
                 key={`${item}-${index}`}
@@ -198,17 +311,16 @@ const Dashboard = () => {
                     : "bg-blue-100 text-blue-700"
                 }`}
               >
-                {index + 1}. {item}
+                {index + 1}.{" "}
+                {item}
               </span>
             )
           )}
         </div>
       </div>
 
-      {/* Active Card */}
-
       <div className="w-full">
-        {activeCard.content}
+        {activeCard?.content}
       </div>
     </Workspace>
   );

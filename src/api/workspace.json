@@ -37,30 +37,53 @@
     }
   ],
 
-  "tasks": [
-    {
-      "id": 1,
-      "title": "Setup Redux Store",
-      "status": "Completed",
-      "priority": "High"
-    },
-    {
-      "id": 2,
-      "title": "Create Axios Client",
-      "status": "In Progress",
-      "priority": "High"
-    },
-    {
-      "id": 3,
-      "title": "Implement MSW",
-      "status": "Pending",
-      "priority": "Medium"
-    },
-    {
-      "id": 4,
-      "title": "Design Dashboard UI",
-      "status": "Completed",
-      "priority": "Low"
-    }
-  ]
+"tasks": [
+  {
+    "id": 1,
+    "title": "Setup Redux Store",
+    "status": "Completed",
+    "priority": "High",
+    "assignee": "John"
+  },
+  {
+    "id": 2,
+    "title": "Create Axios Client",
+    "status": "In Progress",
+    "priority": "High",
+    "assignee": "Alice"
+  },
+  {
+    "id": 3,
+    "title": "Implement MSW",
+    "status": "Pending",
+    "priority": "Medium",
+    "assignee": "David"
+  },
+  {
+    "id": 4,
+    "title": "Design Dashboard UI",
+    "status": "Completed",
+    "priority": "Low",
+    "assignee": "Emma"
+  },
+  {
+    "id": 5,
+    "title": "Build Authentication",
+    "status": "In Progress",
+    "priority": "High",
+    "assignee": "Sophia"
+  },
+  {
+    "id": 6,
+    "title": "Write Documentation",
+    "status": "Pending",
+    "priority": "Low",
+    "assignee": "Chris"
+  }
+]
+
+  
+
+  
 }
+

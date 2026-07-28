@@ -1,6 +1,7 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, Filter, X } from "lucide-react";
+import api from "../api/axios";
 
 import Workspace from "../components/WorkSpace";
 import TaskGrid, {
@@ -19,50 +20,7 @@ import {
   resetFilters,
 } from "../features/filter/filterSlice";
 
-const TASKS: Task[] = [
-  {
-    id: 1,
-    title: "Design Dashboard UI",
-    priority: "High",
-    status: "In Progress",
-    assignee: "John",
-  },
-  {
-    id: 2,
-    title: "API Integration",
-    priority: "Medium",
-    status: "Pending",
-    assignee: "Alice",
-  },
-  {
-    id: 3,
-    title: "Authentication Module",
-    priority: "High",
-    status: "Completed",
-    assignee: "David",
-  },
-  {
-    id: 4,
-    title: "Testing",
-    priority: "Low",
-    status: "In Progress",
-    assignee: "Emma",
-  },
-  {
-    id: 5,
-    title: "Documentation",
-    priority: "Low",
-    status: "Completed",
-    assignee: "Sophia",
-  },
-  {
-    id: 6,
-    title: "Performance Optimization",
-    priority: "Medium",
-    status: "Pending",
-    assignee: "Chris",
-  },
-];
+
 
 const allowedValues = {
   priority: ["all", "high", "medium", "low"],
@@ -110,6 +68,10 @@ const Tasks = () => {
   );
 
   const isDarkMode = theme === "dark";
+
+  const [tasks, setTasks] = useState<Task[]>([]);
+const [loading, setLoading] = useState(true);
+const [error, setError] = useState("");
 
   // Read URL -> Redux
   useEffect(() => {
@@ -164,6 +126,43 @@ const Tasks = () => {
     setSearchParams,
   ]);
 
+  useEffect(() => {
+  const fetchTasks = async () => {
+    const startTime = performance.now();
+
+    try {
+      setLoading(true);
+
+      const response = await api.get("/tasks");
+
+      setTasks(response.data);
+
+      const endTime = performance.now();
+
+      console.log("========== API Metrics ==========");
+      console.log("Endpoint:", "/api/tasks");
+      console.log("Method:", "GET");
+      console.log("Status:", response.status);
+      console.log(
+        "Response Time:",
+        `${(endTime - startTime).toFixed(2)} ms`
+      );
+      console.log(
+        "Payload Size:",
+        `${JSON.stringify(response.data).length} bytes`
+      );
+      console.log("===============================");
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load tasks.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchTasks();
+}, []);
+
   const clearQuery = () => {
     dispatch(resetFilters());
 
@@ -210,15 +209,15 @@ const Tasks = () => {
 
   const filteredTasks = useMemo(
     () =>
-      TASKS.filter((task) => {
-        const searchMatch =
-          task.title
-            .toLowerCase()
-            .includes(search.toLowerCase()) ||
-          task.assignee
-            .toLowerCase()
-            .includes(search.toLowerCase());
-
+      tasks.filter((task) => {
+      const searchMatch =
+  task.title
+    .toLowerCase()
+    .includes(search.toLowerCase()) ||
+  task.assignee
+    .toLowerCase()
+    .includes(search.toLowerCase());
+    
         const priorityMatch =
           priority === "all" ||
           task.priority.toLowerCase() ===
@@ -236,181 +235,201 @@ const Tasks = () => {
           statusMatch
         );
       }),
-    [search, priority, status]
+    [search, priority, status,tasks]
   );
 
+if (loading) {
   return (
     <Workspace
       subtitle="Workspace"
       title="Task Manager"
       description="Manage, search and filter workspace tasks."
     >
-      <div
-        className={`mb-8 rounded-2xl p-6 shadow-sm transition-colors duration-300 ${
-          isDarkMode
-            ? "bg-gray-800"
-            : "bg-white"
-        }`}
-      >
-        <div className="mb-5 flex items-center">
-          <div
-            className={`rounded-xl p-2 ${
-              isDarkMode
-                ? "bg-blue-900/30 text-blue-400"
-                : "bg-blue-100 text-blue-600"
-            }`}
-          >
-            <Filter size={18} />
-          </div>
+      <div className="flex flex-col items-center justify-center py-20">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent" />
 
-          <div className="ml-3">
-            <h2
-              className={`font-semibold ${
-                isDarkMode
-                  ? "text-white"
-                  : "text-gray-900"
-              }`}
-            >
-              Task Filters
-            </h2>
+        <p
+          className={`mt-6 text-lg ${
+            isDarkMode ? "text-gray-300" : "text-gray-600"
+          }`}
+        >
+          Loading Tasks...
+        </p>
+      </div>
+    </Workspace>
+  );
+}
 
-            <p
-              className={`text-xs ${
-                isDarkMode
-                  ? "text-gray-400"
-                  : "text-gray-500"
-              }`}
-            >
-              Find tasks instantly
-            </p>
-          </div>
+if (error) {
+  return (
+    <Workspace
+      subtitle="Workspace"
+      title="Task Manager"
+      description="Manage, search and filter workspace tasks."
+    >
+      <div className="flex items-center justify-center py-20">
+        <p className="text-lg text-red-500">{error}</p>
+      </div>
+    </Workspace>
+  );
+}
 
-          <Badge
-            className={`ml-auto ${
-              isDarkMode
-                ? "bg-blue-900/30 text-blue-300"
-                : "bg-blue-100 text-blue-700"
-            }`}
-          >
-            {filteredTasks.length} Tasks
-          </Badge>
+return (
+  <Workspace
+    subtitle="Workspace"
+    title="Task Manager"
+    description="Manage, search and filter workspace tasks."
+  >
+    <div
+      className={`mb-8 rounded-2xl p-6 shadow-sm transition-colors duration-300 ${
+        isDarkMode ? "bg-gray-800" : "bg-white"
+      }`}
+    >
+      <div className="mb-5 flex items-center">
+        <div
+          className={`rounded-xl p-2 ${
+            isDarkMode
+              ? "bg-blue-900/30 text-blue-400"
+              : "bg-blue-100 text-blue-600"
+          }`}
+        >
+          <Filter size={18} />
         </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {filterFields.map((field) => (
-            <div key={field.key}>
-              <label
-                className={`mb-2 block text-sm font-medium ${
-                  isDarkMode
-                    ? "text-gray-200"
-                    : "text-gray-700"
-                }`}
-              >
-                {field.label}
-              </label>
+        <div className="ml-3">
+          <h2
+            className={`font-semibold ${
+              isDarkMode ? "text-white" : "text-gray-900"
+            }`}
+          >
+            Task Filters
+          </h2>
 
-              {field.type === "search" ? (
-                <div className="relative">
-                  <Search
-                    size={18}
-                    className={`absolute left-3 top-3.5 ${
-                      isDarkMode
-                        ? "text-gray-500"
-                        : "text-gray-400"
-                    }`}
-                  />
+          <p
+            className={`text-xs ${
+              isDarkMode ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            Find tasks instantly
+          </p>
+        </div>
 
-                  <input
-                    value={field.value}
-                    placeholder={field.placeholder}
-                    onChange={(e) =>
-                      field.onChange(e.target.value)
-                    }
-                    className={`${inputClass} pl-10 ${
-                      isDarkMode
-                        ? "border-gray-700 bg-gray-900 text-white placeholder:text-gray-500"
-                        : ""
-                    }`}
-                  />
-                </div>
-              ) : (
-                <select
+        <Badge
+          className={`ml-auto ${
+            isDarkMode
+              ? "bg-blue-900/30 text-blue-300"
+              : "bg-blue-100 text-blue-700"
+          }`}
+        >
+          {filteredTasks.length} Tasks
+        </Badge>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        {filterFields.map((field) => (
+          <div key={field.key}>
+            <label
+              className={`mb-2 block text-sm font-medium ${
+                isDarkMode ? "text-gray-200" : "text-gray-700"
+              }`}
+            >
+              {field.label}
+            </label>
+
+            {field.type === "search" ? (
+              <div className="relative">
+                <Search
+                  size={18}
+                  className={`absolute left-3 top-3.5 ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                />
+
+                <input
                   value={field.value}
+                  placeholder={field.placeholder}
                   onChange={(e) =>
                     field.onChange(e.target.value)
                   }
-                  className={`${inputClass} ${
+                  className={`${inputClass} pl-10 ${
                     isDarkMode
-                      ? "border-gray-700 bg-gray-900 text-white"
+                      ? "border-gray-700 bg-gray-900 text-white placeholder:text-gray-500"
                       : ""
                   }`}
-                >
-                  {field.options?.map((option) => (
-                    <option
-                      key={option}
-                      value={option}
-                    >
-                      {formatOption(option)}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-          ))}
-        </div>
+                />
+              </div>
+            ) : (
+              <select
+                value={field.value}
+                onChange={(e) =>
+                  field.onChange(e.target.value)
+                }
+                className={`${inputClass} ${
+                  isDarkMode
+                    ? "border-gray-700 bg-gray-900 text-white"
+                    : ""
+                }`}
+              >
+                {field.options?.map((option) => (
+                  <option key={option} value={option}>
+                    {formatOption(option)}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <button
+        onClick={clearQuery}
+        className={`mt-5 flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
+          isDarkMode
+            ? "border-gray-700 text-gray-200 hover:bg-gray-700"
+            : "border-gray-300 hover:bg-gray-100"
+        }`}
+      >
+        <X size={16} />
+        Clear Filters
+      </button>
+    </div>
+
+    {filteredTasks.length > 0 ? (
+      <TaskGrid tasks={filteredTasks} />
+    ) : (
+      <div
+        className={`mt-10 rounded-2xl border border-dashed p-12 text-center transition-colors duration-300 ${
+          isDarkMode
+            ? "border-gray-700 bg-gray-800"
+            : "border-gray-300 bg-gray-50"
+        }`}
+      >
+        <h3
+          className={`text-lg font-semibold ${
+            isDarkMode ? "text-white" : "text-gray-700"
+          }`}
+        >
+          No tasks found
+        </h3>
+
+        <p
+          className={`mt-2 text-sm ${
+            isDarkMode ? "text-gray-400" : "text-gray-500"
+          }`}
+        >
+          Try changing your search or filters.
+        </p>
 
         <button
           onClick={clearQuery}
-          className={`mt-5 flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-            isDarkMode
-              ? "border-gray-700 text-gray-200 hover:bg-gray-700"
-              : "border-gray-300 hover:bg-gray-100"
-          }`}
+          className="mt-5 rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
         >
-          <X size={16} />
-          Clear Filters
+          Reset Filters
         </button>
       </div>
-            <TaskGrid tasks={filteredTasks} />
-
-      {filteredTasks.length === 0 && (
-        <div
-          className={`mt-10 rounded-2xl border border-dashed p-12 text-center transition-colors duration-300 ${
-            isDarkMode
-              ? "border-gray-700 bg-gray-800"
-              : "border-gray-300 bg-gray-50"
-          }`}
-        >
-          <h3
-            className={`text-lg font-semibold ${
-              isDarkMode
-                ? "text-white"
-                : "text-gray-700"
-            }`}
-          >
-            No tasks found
-          </h3>
-
-          <p
-            className={`mt-2 text-sm ${
-              isDarkMode
-                ? "text-gray-400"
-                : "text-gray-500"
-            }`}
-          >
-            Try changing your search or filters.
-          </p>
-
-          <button
-            onClick={clearQuery}
-            className="mt-5 rounded-lg bg-blue-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
-          >
-            Reset Filters
-          </button>
-        </div>
-      )}
-    </Workspace>
-  );
+    )}
+  </Workspace>
+);
 };
 
 export default Tasks;
