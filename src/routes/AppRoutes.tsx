@@ -5,16 +5,44 @@ import Projects from "../pages/Projects";
 import Analytics from "../pages/Analytics";
 import Settings from "../pages/Settings";
 import Tasks from "../pages/Tasks";
+import NotFound from "../pages/NotFound";
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
-      <Route path="/projects" element={<Projects />} />
-      <Route path="/analytics" element={<Analytics />} />
-            <Route path="/tasks" element={<Tasks />} />
 
-      <Route path="/settings" element={<Settings />} />
+      <Route
+        path="/projects"
+        element={<Projects />}
+      />
+
+      <Route
+        path="/analytics"
+        element={<Analytics />}
+      />
+
+      <Route
+        path="/tasks"
+        element={<Tasks />}
+      />
+
+      <Route
+        path="/settings"
+        element={<Settings />}
+      />
+
+      {/* Unauthorized / Forbidden */}
+      <Route
+        path="/not-found"
+        element={<NotFound />}
+      />
+
+      {/* Catch all unknown routes */}
+      <Route
+        path="*"
+        element={<NotFound />}
+      />
     </Routes>
   );
 }

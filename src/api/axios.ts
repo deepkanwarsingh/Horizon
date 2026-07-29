@@ -1,6 +1,7 @@
-// src/api/axios.ts
-
-import axios, { AxiosResponse } from "axios";
+import axios, {
+  AxiosError,
+  AxiosResponse,
+} from "axios";
 
 // Provide types for import.meta.env when using Vite in TypeScript
 interface ImportMetaEnv {
@@ -14,9 +15,6 @@ declare global {
 }
 
 const api = axios.create({
-  // Uses Vite environment variable.
-  // For MSW this can simply be "/api".
-  // Later replace it with your real backend URL.
   baseURL: import.meta.env.VITE_API_BASE_URL,
 
   timeout: 10000,
@@ -51,34 +49,65 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
 
-  (error) => {
+  (error: AxiosError<any>) => {
+    // Timeout
     if (error.code === "ECONNABORTED") {
       console.error("Request timed out.");
       return Promise.reject(error);
     }
 
+    // Network failure
     if (!error.response) {
       console.error("Network Error");
       return Promise.reject(error);
     }
 
-    switch (error.response.status) {
+    const { status, data } = error.response;
+
+    switch (status) {
       case 401:
         console.error("Unauthorized");
 
         localStorage.removeItem("token");
 
-        // Optional
+        // Clear any auth state if needed
+
         window.location.href = "/login";
         break;
 
       case 403:
         console.error("Forbidden");
+
+        window.location.href = "/forbidden";
         break;
 
       case 404:
         console.error("Resource Not Found");
         break;
+
+      case 422:
+      case 400:
+        // Validation errors
+        console.error("Validation Error");
+
+        /*
+          Expected API response:
+
+          {
+            errors: {
+              email: "Invalid email",
+              password: "Password too short"
+            }
+          }
+
+          Don't handle here.
+          Pass back to the component.
+        */
+
+        return Promise.reject({
+          ...error,
+          validationErrors: data?.errors ?? {},
+        });
 
       case 500:
         console.error("Internal Server Error");
