@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Workspace from "../components/WorkSpace";
 import Card from "../components/subComponents/Card";
+import Button from "../components/subComponents/Button";
 import { useAppSelector } from "../hooks/reduxHooks";
 import api from "../api/axios";
 
@@ -22,22 +23,34 @@ const Projects = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        setLoading(true);
+  const fetchProjects = async () => {
+    try {
+      setLoading(true);
+      setError("");
 
-        const response = await api.get("/projects");
+      const response = await api.get("/projects");
 
-        setProjectList(response.data);
-      } catch (err) {
-        console.error(err);
+      setProjectList(response.data);
+    } catch (err: any) {
+      console.error(err);
+
+      if (!err.response) {
+        setError(
+          "No internet connection. Please check your network."
+        );
+      } else if (err.response.status === 500) {
+        setError(
+          "Server is temporarily unavailable. Please try again later."
+        );
+      } else {
         setError("Failed to load projects.");
-      } finally {
-        setLoading(false);
       }
-    };
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProjects();
   }, []);
 
@@ -70,8 +83,12 @@ const Projects = () => {
         title="Projects"
         description="Manage and monitor all your active projects."
       >
-        <div className="flex items-center justify-center py-20">
-          <p className="text-red-500">{error}</p>
+        <div className="flex flex-col items-center justify-center gap-4 py-20">
+          <p className="text-red-500 text-lg">{error}</p>
+
+          <Button onClick={fetchProjects}>
+            Retry
+          </Button>
         </div>
       </Workspace>
     );

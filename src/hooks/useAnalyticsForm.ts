@@ -8,7 +8,7 @@ import {
   LETTERS_ONLY_REGEX,
   VALIDATION_MESSAGES,
   UI_TEXT,
-} from "../constant/analytics";
+} from "../utils/analytics";
 import useUnsafeContent from "./useUnsafeContent";
 import { useAppDispatch } from "./reduxHooks";
 import { showNotification } from "../features/notifications/notificationSlice";

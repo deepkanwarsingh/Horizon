@@ -32,7 +32,7 @@ type SimulateError =
  * "403"      -> Simulate forbidden
  * "500"      -> Simulate server error
  */
-const SIMULATE_ERROR: SimulateError = "network";
+const SIMULATE_ERROR: SimulateError = "false";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,

@@ -4,7 +4,7 @@ import {
   TIME_PERIODS,
   UI_TEXT,
   PREVIEW_FIELDS,
-} from "../constant/analytics";
+} from "../utils/analytics";
 import Workspace from "../components/WorkSpace";
 import Card from "../components/subComponents/Card";
 import Form from "../components/Form";

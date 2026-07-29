@@ -60,59 +60,85 @@ const Dashboard = () => {
   const [error, setError] =
     useState("");
 
-  useEffect(() => {
-    const fetchDashboard =
-      async () => {
-        const start =
+  const fetchDashboard =
+    async () => {
+      const start =
+        performance.now();
+
+      try {
+        setLoading(true);
+        setError("");
+
+        const response =
+          await api.get("/dashboard");
+
+        setDashboard(response.data);
+
+        const end =
           performance.now();
 
-        try {
-          setLoading(true);
+        console.log(
+          "========= Dashboard API ========="
+        );
+        console.log(
+          "Endpoint:",
+          "/dashboard"
+        );
+        console.log(
+          "Status:",
+          response.status
+        );
+        console.log(
+          "Response Time:",
+          `${(
+            end - start
+          ).toFixed(2)} ms`
+        );
+        console.log(
+          "Payload Size:",
+          `${JSON.stringify(
+            response.data
+          ).length} bytes`
+        );
+        console.log(
+          "================================="
+        );
+      } catch (err: any) {
+        console.error(err);
 
-          const response =
-            await api.get("/dashboard");
-
-          setDashboard(response.data);
-
-          const end =
-            performance.now();
-
-          console.log(
-            "========= Dashboard API ========="
+        if (!err.response) {
+          setError(
+            "No internet connection. Please check your network and try again."
           );
-          console.log(
-            "Endpoint:",
-            "/dashboard"
+        } else if (
+          err.response.status === 500
+        ) {
+          setError(
+            "Server is temporarily unavailable. Please try again later."
           );
-          console.log(
-            "Status:",
-            response.status
+        } else if (
+          err.response.status === 401
+        ) {
+          setError(
+            "Your session has expired. Redirecting to login..."
           );
-          console.log(
-            "Response Time:",
-            `${(
-              end - start
-            ).toFixed(2)} ms`
+        } else if (
+          err.response.status === 403
+        ) {
+          setError(
+            "You don't have permission to access this dashboard."
           );
-          console.log(
-            "Payload Size:",
-            `${JSON.stringify(
-              response.data
-            ).length} bytes`
-          );
-          console.log(
-            "================================="
-          );
-        } catch (err) {
-          console.error(err);
+        } else {
           setError(
             "Failed to load dashboard."
           );
-        } finally {
-          setLoading(false);
         }
-      };
+      } finally {
+        setLoading(false);
+      }
+    };
 
+  useEffect(() => {
     fetchDashboard();
   }, []);
 
@@ -212,8 +238,21 @@ const Dashboard = () => {
         title="Dashboard"
         description="Dashboard"
       >
-        <div className="rounded-xl bg-red-100 p-6 text-red-600">
-          {error}
+        <div className="flex flex-col items-center justify-center gap-5 rounded-xl border border-red-200 bg-red-50 p-8">
+          <h2 className="text-2xl font-semibold text-red-600">
+            Unable to Load Dashboard
+          </h2>
+
+          <p className="text-center text-gray-700">
+            {error}
+          </p>
+
+          <button
+            onClick={fetchDashboard}
+            className="rounded-lg bg-blue-600 px-5 py-2 text-white transition hover:bg-blue-700"
+          >
+            Retry
+          </button>
         </div>
       </Workspace>
     );
