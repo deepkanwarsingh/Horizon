@@ -12,6 +12,7 @@ import Select from "../components/subComponents/Select";
 import Input from "../components/subComponents/Input";
 import useAnalyticsForm from "../hooks/useAnalyticsForm";
 import { useAppSelector } from "../hooks/reduxHooks";
+import { toast } from "react-toastify";
 
 const Analytics = () => {
   const {
@@ -28,6 +29,12 @@ const Analytics = () => {
 
   const isDarkMode = theme === "dark";
 
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    handleSubmit(e);
+
+    toast.success("Form submitted successfully!");
+  };
+
   return (
     <Workspace
       subtitle="Workspace"
@@ -37,7 +44,7 @@ const Analytics = () => {
       <Card
         className={`mx-auto max-w-2xl ${
           isDarkMode
-            ? "bg-gray-800 border-gray-700"
+            ? "border-gray-700 bg-gray-800"
             : ""
         }`}
       >
@@ -49,7 +56,7 @@ const Analytics = () => {
           }`}
         >
           <Form
-            onSubmit={handleSubmit}
+            onSubmit={onSubmit}
             buttonText={UI_TEXT.submitButton}
             isButtonDisabled={!isFormValid}
           >

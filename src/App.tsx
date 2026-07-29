@@ -4,6 +4,8 @@ import AppRoutes from "./routes/AppRoutes";
 
 
 import { useAppSelector } from "./hooks/reduxHooks";
+import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
 
 function App() {
 const theme = useAppSelector(
@@ -52,6 +54,11 @@ const isDarkMode = theme === "dark";
           <AppRoutes />
         </div>
       </main>
+            <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme={isDarkMode ? "dark" : "light"}
+      />
     </div>
   );
 }

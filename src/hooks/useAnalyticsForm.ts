@@ -10,8 +10,12 @@ import {
   UI_TEXT,
 } from "../constant/analytics";
 import useUnsafeContent from "./useUnsafeContent";
+import { useAppDispatch } from "./reduxHooks";
+import { showNotification } from "../features/notifications/notificationSlice";
 
 const useAnalyticsForm = () => {
+  const dispatch = useAppDispatch();
+
   const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState(INITIAL_ERRORS);
   const [isFormValid, setIsFormValid] = useState(false);
@@ -62,29 +66,30 @@ const useAnalyticsForm = () => {
   useEffect(() => {
     setIsFormValid(
       Object.values(errors).every((error) => !error) &&
-        Object.values(form).every((value) => value.trim() !== "")
+        Object.values(form).every(
+          (value) => value.trim() !== ""
+        )
     );
   }, [form, errors]);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement
+    >
   ) => {
     const { name } = e.target;
     let { value } = e.target;
 
     const key = name as keyof typeof INITIAL_FORM;
 
-    // Remove spaces from email
     if (key === "email") {
       value = value.replace(/\s/g, "");
     }
 
-    // Collapse multiple spaces
     if (key === "reportName") {
       value = value.replace(/\s{2,}/g, " ");
     }
 
-    // Unsafe content validation
     if (containsUnsafeContent(value)) {
       setErrors((prev) => ({
         ...prev,
@@ -93,7 +98,6 @@ const useAnalyticsForm = () => {
       return;
     }
 
-    // Dropdown validation
     if (
       key === "reportType" &&
       value &&
@@ -143,7 +147,12 @@ const useAnalyticsForm = () => {
       return;
     }
 
-    alert(UI_TEXT.submitSuccess);
+    dispatch(
+      showNotification({
+        type: "success",
+        message: UI_TEXT.submitSuccess,
+      })
+    );
   };
 
   return {
