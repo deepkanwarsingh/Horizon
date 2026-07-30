@@ -1,10 +1,10 @@
 import { Routes, Route } from "react-router-dom";
 
-import Dashboard from "../pages/Dashboard";
+import Dashboard from "../pages/dashboard/Dashboard";
 import Projects from "../pages/Projects";
 import Analytics from "../pages/Analytics";
 import Settings from "../pages/Settings";
-import Tasks from "../pages/Tasks";
+import Tasks from "../pages/tasks/Tasks";
 import NotFound from "../pages/NotFound";
 
 export default function AppRoutes() {

@@ -1,24 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Search, Filter, X } from "lucide-react";
-import api from "../api/axios";
 
-import Workspace from "../components/WorkSpace";
+
+
+import { fetchTasksData } from "../tasks/TasksApi";
+
+import Workspace from "../../components/WorkSpace";
 import TaskGrid, {
   type Task,
-} from "../components/tasks/TaskGrid";
+} from "../../components/tasks/TaskGrid";
 
 import {
   useAppDispatch,
   useAppSelector,
-} from "../hooks/reduxHooks";
+} from "../../hooks/reduxHooks";
 
 import {
   setSearch,
   setPriority,
   setStatus,
   resetFilters,
-} from "../features/filter/filterSlice";
+} from "../../features/filter/filterSlice";
 
 
 
@@ -126,41 +129,19 @@ const [error, setError] = useState("");
     setSearchParams,
   ]);
 
-  useEffect(() => {
-  const fetchTasks = async () => {
-    const startTime = performance.now();
+useEffect(() => {
+  const loadTasks = async () => {
+    setLoading(true);
 
-    try {
-      setLoading(true);
+    const { data, error } = await fetchTasksData();
 
-      const response = await api.get("/tasks");
+    setTasks(data);
+    setError(error);
 
-      setTasks(response.data);
-
-      const endTime = performance.now();
-
-      console.log("========== API Metrics ==========");
-      console.log("Endpoint:", "/api/tasks");
-      console.log("Method:", "GET");
-      console.log("Status:", response.status);
-      console.log(
-        "Response Time:",
-        `${(endTime - startTime).toFixed(2)} ms`
-      );
-      console.log(
-        "Payload Size:",
-        `${JSON.stringify(response.data).length} bytes`
-      );
-      console.log("===============================");
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load tasks.");
-    } finally {
-      setLoading(false);
-    }
+    setLoading(false);
   };
 
-  fetchTasks();
+  loadTasks();
 }, []);
 
   const clearQuery = () => {

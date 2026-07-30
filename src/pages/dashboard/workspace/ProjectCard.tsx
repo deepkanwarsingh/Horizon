@@ -1,4 +1,4 @@
-import Button from "../subComponents/Button";
+import Button from "../../../components/subComponents/Button";
 
 const ProjectsCard = () => {
   const projects = [
