@@ -9,6 +9,8 @@ import RevenueCard from "../components/workspace/RevenueCard";
 import VisitorsCard from "../components/workspace/VistorsCard";
 
 import api from "../api/axios";
+import { throttle } from "../utils/throttle";
+import { measureTime } from "../utils/requestTimer";
 
 import {
   useAppDispatch,
@@ -69,8 +71,9 @@ const Dashboard = () => {
         setLoading(true);
         setError("");
 
-        const response =
-          await api.get("/dashboard");
+const response = await measureTime(() =>
+  api.get("/dashboard")
+);
 
         setDashboard(response.data);
 
@@ -198,24 +201,21 @@ const Dashboard = () => {
         tab.id === activeTab
     ) ?? tabs[0];
 
-  const handleTabChange = (
-    tabId: string
-  ) => {
-    if (tabId === activeTab)
-      return;
+const throttledTabChange = useMemo(
+  () =>
+    throttle((tabId: string) => {
+      if (tabId === activeTab) return;
 
-    dispatch(
-      setActiveTab(tabId)
-    );
+      dispatch(setActiveTab(tabId));
 
-    dispatch(
-      addNavigationHistory(tabId)
-    );
+      dispatch(addNavigationHistory(tabId));
 
-    setSearchParams({
-      tab: tabId,
-    });
-  };
+      setSearchParams({
+        tab: tabId,
+      });
+    }, 500),
+  [activeTab, dispatch, setSearchParams]
+);
 
   if (loading) {
     return (
@@ -280,11 +280,9 @@ const Dashboard = () => {
             return (
               <button
                 key={tab.id}
-                onClick={() =>
-                  handleTabChange(
-                    tab.id
-                  )
-                }
+onClick={() =>
+  throttledTabChange(tab.id)
+}
                 className={`relative flex-shrink-0 rounded-xl px-5 py-3 text-sm font-semibold transition-all duration-300 ${
                   isActive
                     ? isDarkMode

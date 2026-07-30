@@ -10,8 +10,11 @@ import {
   UI_TEXT,
 } from "../utils/analytics";
 import useUnsafeContent from "./useUnsafeContent";
+import useDebounce from "./useDebounce";
 import { useAppDispatch } from "./reduxHooks";
 import { showNotification } from "../features/notifications/notificationSlice";
+
+
 
 const useAnalyticsForm = () => {
   const dispatch = useAppDispatch();
@@ -20,7 +23,18 @@ const useAnalyticsForm = () => {
   const [errors, setErrors] = useState(INITIAL_ERRORS);
   const [isFormValid, setIsFormValid] = useState(false);
 
+  const [touched, setTouched] = useState({
+    reportName: false,
+    email: false,
+    department: false,
+    reportType: false,
+    timePeriod: false,
+  });
+
   const { containsUnsafeContent } = useUnsafeContent();
+
+  // Debounce entire form
+  const debouncedForm = useDebounce(form, 500);
 
   const validateField = (
     name: keyof typeof INITIAL_FORM,
@@ -63,14 +77,33 @@ const useAnalyticsForm = () => {
     }
   };
 
+  // Debounced validation
   useEffect(() => {
-    setIsFormValid(
-      Object.values(errors).every((error) => !error) &&
-        Object.values(form).every(
-          (value) => value.trim() !== ""
-        )
-    );
-  }, [form, errors]);
+    const newErrors = { ...INITIAL_ERRORS };
+
+    (
+      Object.keys(debouncedForm) as Array<
+        keyof typeof INITIAL_FORM
+      >
+    ).forEach((key) => {
+      if (touched[key]) {
+        newErrors[key] = validateField(
+          key,
+          debouncedForm[key]
+        );
+      }
+    });
+
+    setErrors(newErrors);
+
+    const valid =
+      Object.values(newErrors).every((e) => !e) &&
+      Object.values(debouncedForm).every(
+        (v) => v.trim() !== ""
+      );
+
+    setIsFormValid(valid);
+  }, [debouncedForm, touched]);
 
   const handleInputChange = (
     e: React.ChangeEvent<
@@ -81,6 +114,11 @@ const useAnalyticsForm = () => {
     let { value } = e.target;
 
     const key = name as keyof typeof INITIAL_FORM;
+
+    setTouched((prev) => ({
+      ...prev,
+      [key]: true,
+    }));
 
     if (key === "email") {
       value = value.replace(/\s/g, "");
@@ -95,6 +133,7 @@ const useAnalyticsForm = () => {
         ...prev,
         [key]: VALIDATION_MESSAGES.unsafeContent,
       }));
+
       return;
     }
 
@@ -114,14 +153,10 @@ const useAnalyticsForm = () => {
       return;
     }
 
+    // Update immediately
     setForm((prev) => ({
       ...prev,
       [key]: value,
-    }));
-
-    setErrors((prev) => ({
-      ...prev,
-      [key]: validateField(key, value),
     }));
   };
 
@@ -130,13 +165,22 @@ const useAnalyticsForm = () => {
   ) => {
     e.preventDefault();
 
-    const newErrors = Object.keys(form).reduce(
+    setTouched({
+      reportName: true,
+      email: true,
+      department: true,
+      reportType: true,
+      timePeriod: true,
+    });
+
+    const newErrors = (
+      Object.keys(form) as Array<
+        keyof typeof INITIAL_FORM
+      >
+    ).reduce(
       (acc, key) => ({
         ...acc,
-        [key]: validateField(
-          key as keyof typeof INITIAL_FORM,
-          form[key as keyof typeof INITIAL_FORM]
-        ),
+        [key]: validateField(key, form[key]),
       }),
       {} as typeof INITIAL_ERRORS
     );

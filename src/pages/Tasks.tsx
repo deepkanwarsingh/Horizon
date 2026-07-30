@@ -207,36 +207,37 @@ const [error, setError] = useState("");
     },
   ];
 
-  const filteredTasks = useMemo(
-    () =>
-      tasks.filter((task) => {
-      const searchMatch =
-  task.title
-    .toLowerCase()
-    .includes(search.toLowerCase()) ||
-  task.assignee
-    .toLowerCase()
-    .includes(search.toLowerCase());
-    
-        const priorityMatch =
-          priority === "all" ||
-          task.priority.toLowerCase() ===
-            priority.toLowerCase();
+const filteredTasks = useMemo(() => {
+  const searchValue = (search ?? "").toLowerCase();
+  const priorityValue = (priority ?? "").toLowerCase();
 
-        const statusMatch =
-          status === "all" ||
-          task.status
-            .toLowerCase()
-            .replace(/\s/g, "-") === status;
+  return tasks.filter((task) => {
+    const title = (task.title ?? "").toLowerCase();
+    const assignee = (task.assignee ?? "").toLowerCase();
+    const taskPriority = (task.priority ?? "").toLowerCase();
+    const taskStatus = (task.status ?? "")
+      .toLowerCase()
+      .replace(/\s/g, "-");
 
-        return (
-          searchMatch &&
-          priorityMatch &&
-          statusMatch
-        );
-      }),
-    [search, priority, status,tasks]
-  );
+    const searchMatch =
+      title.includes(searchValue) ||
+      assignee.includes(searchValue);
+
+    const priorityMatch =
+      priority === "all" ||
+      taskPriority === priorityValue;
+
+    const statusMatch =
+      status === "all" ||
+      taskStatus === status;
+
+    return (
+      searchMatch &&
+      priorityMatch &&
+      statusMatch
+    );
+  });
+}, [tasks, search, priority, status]);
 
 if (loading) {
   return (

@@ -4,6 +4,7 @@ import Card from "../components/subComponents/Card";
 import Button from "../components/subComponents/Button";
 import { useAppSelector } from "../hooks/reduxHooks";
 import api from "../api/axios";
+import { measureTime } from "../utils/requestTimer";
 
 interface Project {
   id: number;
@@ -28,8 +29,9 @@ const Projects = () => {
       setLoading(true);
       setError("");
 
-      const response = await api.get("/projects");
-
+const response = await measureTime(() =>
+  api.get("/projects")
+);
       setProjectList(response.data);
     } catch (err: any) {
       console.error(err);

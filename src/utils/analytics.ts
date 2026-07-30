@@ -1,4 +1,4 @@
-// src/constants/analytics.ts
+// src/utils/analytics.ts
 
 // Initial Form State
 export const INITIAL_FORM = {
@@ -18,6 +18,9 @@ export const INITIAL_ERRORS = {
   timePeriod: "",
 };
 
+// Validation debounce delay (ms)
+export const VALIDATION_DEBOUNCE_DELAY = 500;
+
 // Dropdown Options
 export const REPORT_TYPES = [
   "Sales",
@@ -34,9 +37,11 @@ export const TIME_PERIODS = [
 ];
 
 // Validation Patterns
-export const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_REGEX =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-export const LETTERS_ONLY_REGEX = /^[A-Za-z ]+$/;
+export const LETTERS_ONLY_REGEX =
+  /^[A-Za-z ]+$/;
 
 // Shared Input Style
 export const INPUT_STYLE =
@@ -44,17 +49,29 @@ export const INPUT_STYLE =
 
 // Validation Messages
 export const VALIDATION_MESSAGES = {
-  reportNameRequired: "Report name is required.",
-  reportNameMin: "Minimum 3 characters.",
+  reportNameRequired:
+    "Report name is required.",
 
-  emailRequired: "Email is required.",
-  emailInvalid: "Enter a valid email address.",
+  reportNameMin:
+    "Minimum 3 characters.",
 
-  departmentRequired: "Department is required.",
-  departmentInvalid: "Only letters are allowed.",
+  emailRequired:
+    "Email is required.",
 
-  reportTypeRequired: "Please select a report type.",
-  timePeriodRequired: "Please select a time period.",
+  emailInvalid:
+    "Enter a valid email address.",
+
+  departmentRequired:
+    "Department is required.",
+
+  departmentInvalid:
+    "Only letters are allowed.",
+
+  reportTypeRequired:
+    "Please select a report type.",
+
+  timePeriodRequired:
+    "Please select a time period.",
 
   unsafeContent:
     "HTML tags, script tags, or javascript: URLs are not allowed.",
@@ -63,29 +80,46 @@ export const VALIDATION_MESSAGES = {
 // UI Text
 export const UI_TEXT = {
   title: "Analytics Form",
+
   description:
     "Fill out the form below to generate an analytics report.",
 
   reportNameLabel: "Report Name",
-  reportNamePlaceholder: "Monthly Sales Report",
+
+  reportNamePlaceholder:
+    "Monthly Sales Report",
 
   emailLabel: "Email",
-  emailPlaceholder: "example@email.com",
 
-  departmentLabel: "Department",
-  departmentPlaceholder: "Marketing",
+  emailPlaceholder:
+    "example@email.com",
 
-  reportTypeLabel: "Report Type",
-  reportTypePlaceholder: "Select Report Type",
+  departmentLabel:
+    "Department",
 
-  timePeriodLabel: "Time Period",
-  timePeriodPlaceholder: "Select Time Period",
+  departmentPlaceholder:
+    "Marketing",
 
-  previewTitle: "Live Preview",
+  reportTypeLabel:
+    "Report Type",
 
-  submitButton: "Generate Report",
+  reportTypePlaceholder:
+    "Select Report Type",
 
-  submitSuccess: "Analytics form submitted successfully!",
+  timePeriodLabel:
+    "Time Period",
+
+  timePeriodPlaceholder:
+    "Select Time Period",
+
+  previewTitle:
+    "Live Preview",
+
+  submitButton:
+    "Generate Report",
+
+  submitSuccess:
+    "Analytics form submitted successfully!",
 };
 
 // Preview Fields
