@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Dashboard from "../pages/dashboard/Dashboard";
 import Projects from "../pages/Projects";
 import Analytics from "../pages/Analytics";
-import Settings from "../pages/Settings";
+import Settings from "../pages/settings/Settings";
 import Tasks from "../pages/tasks/Tasks";
 import NotFound from "../pages/NotFound";
 

@@ -1,15 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Search, Filter, X } from "lucide-react";
 
 
 
-import { fetchTasksData } from "../tasks/TasksApi";
+import { fetchTasksData } from "./TasksApi";
 
 import Workspace from "../../components/WorkSpace";
 import TaskGrid, {
   type Task,
-} from "../../components/tasks/TaskGrid";
+} from "./TaskGrid";
 
 import {
   useAppDispatch,
@@ -22,6 +21,7 @@ import {
   setStatus,
   resetFilters,
 } from "../../features/filter/filterSlice";
+import TaskFilters from "./TaskFIlters";
 
 
 
@@ -42,6 +42,7 @@ const formatOption = (value: string) =>
   value
     .replace("-", " ")
     .replace(/\b\w/g, (c) => c.toUpperCase());
+
 
 const Badge = ({
   children,
@@ -262,120 +263,17 @@ return (
     title="Task Manager"
     description="Manage, search and filter workspace tasks."
   >
-    <div
-      className={`mb-8 rounded-2xl p-6 shadow-sm transition-colors duration-300 ${
-        isDarkMode ? "bg-gray-800" : "bg-white"
-      }`}
-    >
-      <div className="mb-5 flex items-center">
-        <div
-          className={`rounded-xl p-2 ${
-            isDarkMode
-              ? "bg-blue-900/30 text-blue-400"
-              : "bg-blue-100 text-blue-600"
-          }`}
-        >
-          <Filter size={18} />
-        </div>
-
-        <div className="ml-3">
-          <h2
-            className={`font-semibold ${
-              isDarkMode ? "text-white" : "text-gray-900"
-            }`}
-          >
-            Task Filters
-          </h2>
-
-          <p
-            className={`text-xs ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            Find tasks instantly
-          </p>
-        </div>
-
-        <Badge
-          className={`ml-auto ${
-            isDarkMode
-              ? "bg-blue-900/30 text-blue-300"
-              : "bg-blue-100 text-blue-700"
-          }`}
-        >
-          {filteredTasks.length} Tasks
-        </Badge>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-3">
-        {filterFields.map((field) => (
-          <div key={field.key}>
-            <label
-              className={`mb-2 block text-sm font-medium ${
-                isDarkMode ? "text-gray-200" : "text-gray-700"
-              }`}
-            >
-              {field.label}
-            </label>
-
-            {field.type === "search" ? (
-              <div className="relative">
-                <Search
-                  size={18}
-                  className={`absolute left-3 top-3.5 ${
-                    isDarkMode ? "text-gray-500" : "text-gray-400"
-                  }`}
-                />
-
-                <input
-                  value={field.value}
-                  placeholder={field.placeholder}
-                  onChange={(e) =>
-                    field.onChange(e.target.value)
-                  }
-                  className={`${inputClass} pl-10 ${
-                    isDarkMode
-                      ? "border-gray-700 bg-gray-900 text-white placeholder:text-gray-500"
-                      : ""
-                  }`}
-                />
-              </div>
-            ) : (
-              <select
-                value={field.value}
-                onChange={(e) =>
-                  field.onChange(e.target.value)
-                }
-                className={`${inputClass} ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-900 text-white"
-                    : ""
-                }`}
-              >
-                {field.options?.map((option) => (
-                  <option key={option} value={option}>
-                    {formatOption(option)}
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <button
-        onClick={clearQuery}
-        className={`mt-5 flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-          isDarkMode
-            ? "border-gray-700 text-gray-200 hover:bg-gray-700"
-            : "border-gray-300 hover:bg-gray-100"
-        }`}
-      >
-        <X size={16} />
-        Clear Filters
-      </button>
-    </div>
-
+<TaskFilters
+  isDarkMode={isDarkMode}
+  filteredCount={filteredTasks.length}
+  search={search}
+  priority={priority}
+  status={status}
+  clearQuery={clearQuery}
+  onSearchChange={(value) => dispatch(setSearch(value))}
+  onPriorityChange={(value) => dispatch(setPriority(value))}
+  onStatusChange={(value) => dispatch(setStatus(value))}
+/>
     {filteredTasks.length > 0 ? (
       <TaskGrid tasks={filteredTasks} />
     ) : (
